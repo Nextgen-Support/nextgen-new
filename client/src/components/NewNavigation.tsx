@@ -279,6 +279,13 @@ export default function NewNavigation() {
             </Link>
           </div>
 
+          {/* Right side: contact info */}
+          <div className="hidden md:flex items-center space-x-4 text-yellow-400 ml-8">
+            <span>Call Us: +675 325 2023</span>
+            <span>|</span>
+            <span>Email: enquiry@nextgenpng.net</span>
+          </div>
+
           {/* Mobile menu button */}
           <div className="md:hidden">
             <button
