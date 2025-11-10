@@ -128,7 +128,7 @@ export function SolutionsSection() {
               {solutions.map((solution, index) => (
                 <motion.div
                   key={index}
-                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full flex flex-col transform hover:scale-105 transition-transform"
+                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl h-full flex flex-col"
                   onClick={(e) => {
                     e.preventDefault();
                     window.location.href = solution.link;
@@ -137,10 +137,12 @@ export function SolutionsSection() {
                   variants={cardVariants}
                   whileHover={{
                     y: -5,
+                    scale: 1.05,
                     boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
                     transition: {
                       y: { type: "spring", stiffness: 300 },
-                      boxShadow: { duration: 0.3 },
+                      scale: { duration: 0.3, ease: "easeOut" },
+                      boxShadow: { duration: 0.3 }
                     },
                   }}
                   initial="hidden"

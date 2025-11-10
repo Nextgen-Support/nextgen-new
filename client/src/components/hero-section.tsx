@@ -1,6 +1,30 @@
 import { Link } from "react-router-dom";
+import { useHeroData } from "../hooks/useHeroData";
 
 export default function HeroSection() {
+  const { heroData, loading, error } = useHeroData();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="animate-pulse text-center">
+          <div className="h-8 bg-gray-300 rounded w-3/4 mx-auto mb-4"></div>
+          <div className="h-4 bg-gray-300 rounded w-1/2 mx-auto"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-red-50">
+        <div className="text-center text-red-600">
+          <p>Error loading hero section. Please try again later.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <section
       id="hero"
@@ -14,34 +38,36 @@ export default function HeroSection() {
     >
       {/* Video Background */}
       <div className="absolute inset-0 z-0">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="hidden md:block w-full h-full object-cover"
-          preload="auto"
-          disablePictureInPicture
-          disableRemotePlayback
-          onCanPlayThrough={(e) => {
-            const video = e.target as HTMLVideoElement;
-            video.play().catch((error) => {
-              console.log("Video autoplay was prevented:", error);
-            });
-          }}
-        >
-          <source src="/asset/videos/banner.mp4" type="video/mp4" />
-          <img
-            src="/asset/image/bg.png"
-            alt="Fallback banner"
-            className="w-full h-full object-cover"
-          />
-          Your browser does not support the video tag.
-        </video>
+        {heroData?.videoUrl && (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="hidden md:block w-full h-full object-cover"
+            preload="auto"
+            disablePictureInPicture
+            disableRemotePlayback
+            onCanPlayThrough={(e) => {
+              const video = e.target as HTMLVideoElement;
+              video.play().catch((error) => {
+                console.log("Video autoplay was prevented:", error);
+              });
+            }}
+          >
+            <source src={heroData.videoUrl} type="video/mp4" />
+            <img
+              src={heroData.fallbackImage}
+              alt="Fallback banner"
+              className="w-full h-full object-cover"
+            />
+            Your browser does not support the video tag.
+          </video>
+        )}
         {/* Mobile background image with fallback gradient */}
         <div className="md:hidden absolute inset-0">
           <img
-            src="/asset/image/bg-mobileview.png"
+            src={heroData?.fallbackImage || "/asset/image/bg-mobileview.png"}
             alt=""
             className="w-full h-full object-cover"
             aria-hidden="true"
@@ -57,15 +83,17 @@ export default function HeroSection() {
         <div className="absolute inset-0 bg-black bg-opacity-15"></div>
       </div>
       
-{/* Main Hero Content */}
+      {/* Main Hero Content */}
       <div className="flex-1 flex flex-col justify-center items-center relative z-10 px-4 sm:px-6 lg:px-12 py-12">
         <div className="w-full max-w-4xl text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-            POWERING YOUR BUSINESS THROUGH SMART ICT SOLUTIONS
+            {heroData?.title || 'POWERING YOUR BUSINESS THROUGH SMART ICT SOLUTIONS'}
           </h1>
-          <p className="text-3xl md:text-4xl text-yellow-300 mb-8">
-            "Secure, Scalable, Future-Ready"
-          </p>
+          {heroData?.subtitle && (
+            <p className="text-3xl md:text-4xl text-yellow-300 mb-8">
+              {heroData.subtitle}
+            </p>
+          )}
           <div className="mt-20">
             <a
               href="#contact"

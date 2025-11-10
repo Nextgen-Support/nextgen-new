@@ -13,8 +13,8 @@ export interface WordPressMedia {
 }
 
 interface WordPressACFFields {
-  hero_title?: string;
-  hero_subtitle?: string;
+  title?: string;
+  sub_title?: string;
   background_video?: string;
   // Add more ACF fields as needed
 }
