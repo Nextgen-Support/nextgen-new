@@ -224,7 +224,7 @@ export default function NewNavigation() {
                       <div className="relative group">
                         <button
                           onClick={toggleSupport}
-                          className="w-full text-left px-4 py-2 text-sm text-green-400 hover:bg-white/10 flex justify-between items-center text-sm font-medium"
+                          className="w-full text-left px-4 py-2 text-sm text-green-400 hover:bg-white/10 flex justify-between items-center font-medium"
                         >
                           Support
                           <ChevronDown
