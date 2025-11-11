@@ -171,62 +171,49 @@ export default function AboutSection() {
           </div>
         </div>
 
-        {/* Meet Our Team Section */}
-        <div className="py-16 md:py-24 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Meet Our Team</h2>
-              <div className="w-20 h-1 bg-blue-600 mx-auto"></div>
-            </div>
-            
-            {isLoading ? (
-              <div className="text-center py-12">
+        {/* Meet Our Team Section - Full Width Image */}
+        <div className="w-full">
+          {isLoading ? (
+            <div className="h-screen bg-gray-100 flex items-center justify-center">
+              <div className="text-center">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
                 <p className="text-gray-600">Loading team image...</p>
               </div>
-            ) : error ? (
-              <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8 max-w-3xl mx-auto">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm text-red-700">{error}</p>
-                  </div>
+            </div>
+          ) : error ? (
+            <div className="bg-red-50 border-l-4 border-red-500 p-4">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-red-700">{error}</p>
                 </div>
               </div>
-            ) : (
-              <div className="flex justify-center">
-                <div className="w-full max-w-5xl rounded-xl overflow-hidden shadow-2xl">
-                  <div>
-                    <div className="hidden">
-                      {/* Debug info - will be hidden but visible in the DOM */}
-                      <p>Image Source: {teamImage || 'No image set'}</p>
-                      <p>Rendered at: {new Date().toISOString()}</p>
-                    </div>
-                    <Image
-                      src={getImageUrl(teamImage)}
-                      alt="Our Team"
-                      width={1400}
-                      height={800}
-                      className="w-full h-auto object-cover"
-                      onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-                        const target = e.target as HTMLImageElement;
-                        console.error('Failed to load image, falling back to default:', target.src);
-                        target.src = '/asset/image/team2.png';
-                      }}
-                      onLoad={(e: React.SyntheticEvent<HTMLImageElement>) => {
-                        const target = e.target as HTMLImageElement;
-                        console.log('Image loaded successfully:', target.src);
-                      }}
-                      key={`team-image-${Date.now()}`} // Force re-render with new image
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
+            </div>
+          ) : (
+            <div 
+              className="w-full h-screen bg-cover bg-center"
+              style={{
+                backgroundImage: `url(${getImageUrl(teamImage)})`,
+                backgroundSize: 'contain',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                backgroundColor: '#f3f4f6' // Light gray background in case image has transparency
+              }}
+              onError={(e: React.SyntheticEvent<HTMLDivElement>) => {
+                const target = e.target as HTMLDivElement;
+                target.style.backgroundImage = 'url(/asset/image/team2.png)';
+              }}
+            />
+          )}
+          
+          {/* Hidden debug info */}
+          <div className="hidden">
+            <p>Image Source: {teamImage || 'No image set'}</p>
+            <p>Rendered at: {new Date().toISOString()}</p>
           </div>
         </div>
       </div>
