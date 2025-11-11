@@ -1,12 +1,5 @@
-import React from "react";
-
-// Team member interface
-type TeamMember = {
-  name: string;
-  role: string;
-  image: string;
-  description: string;
-};
+import React, { useEffect, useState } from "react";
+import { fetchTeamImage } from "@/lib/wordpress/api";
 
 // Custom Image component using standard HTML img
 type ImageProps = {
@@ -37,21 +30,46 @@ const Image = ({
 );
 
 export default function AboutSection() {
-  // Sample team data - replace with actual team members
-  const teamMembers: TeamMember[] = [
-    {
-      name: "Mr. Jay-ar Tugare",
-      role: "ICT Operations Manager",
-      image: "/team/ceo.jpg", // Replace with actual image path
-      description: " ", // add info about his qualification
-    },
-    {
-      name: "Mr Jerome Natividad",
-      role: "ICT Project Manager",
-      image: "/team/cto.jpg", // Replace with actual image path
-      description: " ", // add info about his qualification
-    },
-  ];
+  const [teamImage, setTeamImage] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Function to prevent caching by adding a timestamp
+  const getImageUrl = (url: string) => {
+    if (!url) return '';
+    // Add timestamp to prevent caching
+    return `${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`;
+  };
+
+  useEffect(() => {
+    const loadTeamImage = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        console.log('Fetching team image data...');
+        // Use the new fetchTeamImage function which handles multiple endpoints and image formats
+        const teamData = await fetchTeamImage();
+        
+        if (teamData?.imageUrl) {
+          console.log('Setting team image URL from WordPress:', teamData.imageUrl);
+          setTeamImage(teamData.imageUrl);
+        } else {
+          console.log('No team image found in WordPress, using fallback image');
+          setTeamImage('/asset/image/team2.png'); // Fallback to default image
+          setError('No team image found. Using default image.');
+        }
+      } catch (err) {
+        console.error('Failed to load team image:', err);
+        setError('Failed to load team image. Using default image.');
+        setTeamImage('/asset/image/team2.png'); // Fallback to default image on error
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadTeamImage();
+  }, []);
 
   // Accreditations data
   const accreditations = [
@@ -137,30 +155,13 @@ export default function AboutSection() {
 
                   {/* Right Column - Mission & Vision */}
                   <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl p-8 h-full">
-                    <div className="mb-8">
-                      <div className="flex items-center mb-4">
-                        <h3 className="text-2xl font-bold text-white">
-                          Our Vision
-                        </h3>
-                      </div>
-                      <p className="text-blue-100 leading-relaxed">
-                        To be the leading ICT provider in Papua New Guinea,
-                        recognized for innovation, reliability, and exceptional
-                        service delivery across all sectors.
+                    <h3 className="text-2xl font-bold text-white mb-6">Our Mission & Vision</h3>
+                    <div className="space-y-4">
+                      <p className="text-white leading-relaxed">
+                        Our mission is to empower businesses in Papua New Guinea through innovative technology solutions that drive growth and efficiency.
                       </p>
-                    </div>
-
-                    <div>
-                      <div className="flex items-center mb-4">
-                        <h3 className="text-2xl font-bold text-white">
-                          Our Mission
-                        </h3>
-                      </div>
-                      <p className="text-blue-100 leading-relaxed">
-                        To empower businesses in Papua New Guinea with
-                        cutting-edge ICT solutions, delivering world-class
-                        professional services and technical expertise tailored
-                        to the unique needs of the local market.
+                      <p className="text-white leading-relaxed">
+                        We envision being the leading ICT partner, transforming the digital landscape of Papua New Guinea and the Pacific region.
                       </p>
                     </div>
                   </div>
@@ -169,40 +170,66 @@ export default function AboutSection() {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Meet the Team Section */}
-      <div className="relative w-full py-0 md:py-0">
-        {/* Desktop Background Image - Full size and clear */}
-        <div className="hidden md:block w-full h-screen">
-          <img 
-            src="/asset/image/team2.png" 
-            alt="Our Team"
-            className="w-full h-full object-cover object-center"
-            style={{
-              maxWidth: '100%',
-              height: '100vh',
-              objectFit: 'cover',
-              objectPosition: 'center',
-              display: 'block'
-            }}
-          />
-        </div>
-        
-        {/* Mobile Card - Only visible on small screens */}
-        <div className="md:hidden w-full py-8 px-4">
-          <div className="bg-white rounded-xl shadow-xl overflow-hidden max-w-md mx-auto">
-            <div className="relative h-64 w-full">
-              <img 
-                src="/asset/image/team2.png" 
-                alt="Our Team"
-                className="w-full h-full object-cover"
-              />
+        {/* Meet Our Team Section */}
+        <div className="py-16 md:py-24 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Meet Our Team</h2>
+              <div className="w-20 h-1 bg-blue-600 mx-auto"></div>
             </div>
+            
+            {isLoading ? (
+              <div className="text-center py-12">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+                <p className="text-gray-600">Loading team image...</p>
+              </div>
+            ) : error ? (
+              <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8 max-w-3xl mx-auto">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-red-700">{error}</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex justify-center">
+                <div className="w-full max-w-5xl rounded-xl overflow-hidden shadow-2xl">
+                  <div>
+                    <div className="hidden">
+                      {/* Debug info - will be hidden but visible in the DOM */}
+                      <p>Image Source: {teamImage || 'No image set'}</p>
+                      <p>Rendered at: {new Date().toISOString()}</p>
+                    </div>
+                    <Image
+                      src={getImageUrl(teamImage)}
+                      alt="Our Team"
+                      width={1400}
+                      height={800}
+                      className="w-full h-auto object-cover"
+                      onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                        const target = e.target as HTMLImageElement;
+                        console.error('Failed to load image, falling back to default:', target.src);
+                        target.src = '/asset/image/team2.png';
+                      }}
+                      onLoad={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                        const target = e.target as HTMLImageElement;
+                        console.log('Image loaded successfully:', target.src);
+                      }}
+                      key={`team-image-${Date.now()}`} // Force re-render with new image
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
-
     </div>
   );
 }

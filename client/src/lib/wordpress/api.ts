@@ -23,6 +23,13 @@ export interface WordPressMedia {
   mime_type: string;
 }
 
+export interface TeamMemberACF {
+  name: string;
+  role: string;
+  image: number; // WordPress media ID
+  description: string;
+}
+
 interface WordPressACFFields {
   title?: string;
   sub_title?: string;
@@ -31,7 +38,7 @@ interface WordPressACFFields {
   why_choose_us_subtitle?: string;
   why_choose_us_image?: number;
   why_choose_us_items?: string[];
-  // Add more ACF fields as needed
+  team_members?: TeamMemberACF[]; // Array of team members
 }
 
 export interface WordPressPost {
@@ -282,6 +289,272 @@ export async function fetchWhyChooseUsData(): Promise<WhyChooseUsData | null> {
   } catch (error) {
     console.error('Error fetching Why Choose Us data:', error);
     return null;
+  }
+}
+
+// Fetch team members from WordPress
+interface TeamMemberResponse {
+  id: number;
+  acf: TeamMemberACF;
+  _embedded?: {
+    'wp:featuredmedia'?: Array<{
+      source_url: string;
+      alt_text: string;
+    }>;
+  };
+}
+
+interface TeamMember {
+  name: string;
+  role: string;
+  image: string;
+  description: string;
+}
+
+export interface TeamImageData {
+  imageUrl: string;
+  title?: string;
+  description?: string;
+}
+
+export async function fetchTeamImage(): Promise<TeamImageData | null> {
+  try {
+    console.log('Fetching Team Image data...');
+    
+    // Define the specific ACF field we're looking for
+    // The field is named 'team' in the 'Team' field group with return format as image URL
+    const acfFieldName = 'team';
+    
+    // Define possible endpoints to try
+    const endpoints = [
+      // Try ACF options first - this is where the Team field group might be stored
+      { 
+        url: `${WORDPRESS_ACF_API_URL}/options/options`,
+        type: 'acf_options' as const,
+        processor: (data: any) => {
+          // Try to get the team field directly
+          if (data.acf?.[acfFieldName]) {
+            return { 
+              acf: { 
+                [acfFieldName]: data.acf[acfFieldName] 
+              } 
+            };
+          }
+          return data.acf || data;
+        }
+      },
+      // Try team page specifically
+      { 
+        url: `${WORDPRESS_REST_API_URL}/pages?slug=team&_fields=acf,title,content,featured_media,_links&_embed`,
+        type: 'page_by_slug' as const,
+        processor: (data: any) => {
+          const page = Array.isArray(data) ? data[0] : data;
+          // The team field is directly under acf.team (not nested)
+          if (page?.acf?.[acfFieldName]) {
+            return { 
+              ...page, 
+              acf: { 
+                ...page.acf,
+                [acfFieldName]: page.acf[acfFieldName]
+              } 
+            };
+          }
+          return page;
+        }
+      }
+    ];
+
+    let acfData: Record<string, any> | null = null;
+
+    // Try each endpoint until we find the data
+    for (const endpoint of endpoints) {
+      try {
+        console.log(`Trying endpoint: ${endpoint.url}`);
+        const response = await axios.get(endpoint.url);
+        
+        if (response.data) {
+          const responseData = endpoint.processor ? endpoint.processor(response.data) : response.data;
+          
+          // Handle different response formats
+          if (responseData?.acf || responseData?.title) {
+            // The team image is directly in responseData.acf.team (not nested under image)
+            const teamImage = responseData.acf?.[acfFieldName];
+            console.log('Team image from ACF:', teamImage);
+            
+            acfData = {
+              ...(responseData.acf || {}),
+              title: responseData.title?.rendered || responseData.title,
+              content: responseData.content?.rendered || responseData.content,
+              image: teamImage || responseData.acf?.image || responseData.featured_media,
+              _embedded: responseData._embedded
+            };
+            
+            console.log('Processed ACF data:', acfData);
+            console.log(`✅ Found data in ${endpoint.type} endpoint`);
+            break;
+          }
+        }
+      } catch (error) {
+        console.error(`Error fetching from ${endpoint.type}:`, error);
+        continue;
+      }
+    }
+
+    if (!acfData) {
+      console.error('No ACF data found in any endpoint for team image');
+      return null;
+    }
+
+    console.log('Team Image ACF Data found:', acfData);
+
+    // Handle image - try different possible field names and paths
+    let imageUrl = '';
+    
+    // Debug: Log the full ACF data structure
+    console.log('Full ACF Data Structure:', JSON.stringify(acfData, null, 2));
+    
+    // Try to get the image from various possible nested structures
+    const possiblePaths = [
+      // Try direct access first
+      () => acfData.team?.image,
+      () => acfData.acf?.team?.image,
+      () => acfData.team_image,
+      () => acfData.acf?.team_image,
+      () => acfData.image,
+      () => acfData.acf?.image,
+      // Try embedded media
+      () => acfData._embedded?.['wp:featuredmedia']?.[0]?.source_url,
+      () => acfData.featured_media_url
+    ];
+
+    for (const getImage of possiblePaths) {
+      try {
+        const image = getImage();
+        if (!image) continue;
+        
+        console.log('Checking image path:', getImage.toString(), 'Value:', image);
+        
+        // Handle different image formats
+        if (typeof image === 'string') {
+          if (image.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+            imageUrl = image;
+            console.log('Found direct image URL:', imageUrl);
+            break;
+          }
+        } 
+        // Handle ACF image object
+        else if (image.url) {
+          imageUrl = image.url;
+          console.log('Found image URL in object:', imageUrl);
+          break;
+        }
+        // Handle ACF image with sizes
+        else if (image.sizes) {
+          if (image.sizes.large) {
+            imageUrl = image.sizes.large;
+          } else if (image.sizes.medium) {
+            imageUrl = image.sizes.medium;
+          } else if (image.sizes.full) {
+            imageUrl = image.sizes.full;
+          }
+          if (imageUrl) {
+            console.log('Found image in sizes:', imageUrl);
+            break;
+          }
+        }
+        // Handle media ID
+        else if (Number.isInteger(image)) {
+          try {
+            const mediaId = image;
+            console.log('Found media ID:', mediaId);
+            const mediaResponse = await axios.get(`${WORDPRESS_REST_API_URL}/media/${mediaId}`);
+            if (mediaResponse.data?.source_url) {
+              imageUrl = mediaResponse.data.source_url;
+              console.log('Resolved media ID to URL:', imageUrl);
+              break;
+            }
+          } catch (mediaError) {
+            console.error('Error fetching media:', mediaError);
+          }
+        }
+      } catch (e) {
+        console.error('Error checking image path:', e);
+      }
+    }
+
+    // Ensure image URL is absolute
+    if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('//')) {
+      const base = WORDPRESS_BASE_URL.endsWith('/') 
+        ? WORDPRESS_BASE_URL.slice(0, -1) 
+        : WORDPRESS_BASE_URL;
+      imageUrl = `${base}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
+      console.log('Converted to absolute URL:', imageUrl);
+    }
+
+    // If no image found in ACF, try embedded media
+    if (!imageUrl && acfData._embedded?.['wp:featuredmedia']?.[0]?.source_url) {
+      imageUrl = acfData._embedded['wp:featuredmedia'][0].source_url;
+      console.log('Using embedded featured media:', imageUrl);
+    }
+
+    return {
+      imageUrl: imageUrl || '/asset/image/team2.png',
+      title: acfData.title,
+      description: acfData.content
+    };
+  } catch (error) {
+    console.error('Error fetching Team Image data:', error);
+    return null;
+  }
+}
+
+export async function fetchTeamMembers(): Promise<TeamMember[]> {
+  try {
+    // First, fetch the page that contains the team members
+    const response = await wordpressApi.get<WordPressPage[]>('/pages', {
+      params: {
+        slug: 'about', // Assuming team members are stored in the 'about' page
+        _embed: true,
+        acf_format: 'standard',
+      },
+    });
+
+    const page = response.data[0];
+    if (!page || !page.acf?.team_members) {
+      console.warn('No team members found in the about page');
+      return [];
+    }
+
+    // Process team members and fetch their media
+    const teamMembers = await Promise.all(
+      page.acf.team_members.map(async (member) => {
+        let imageUrl = '';
+        
+        // If there's a featured image for the team member
+        if (member.image) {
+          try {
+            const mediaResponse = await wordpressApi.get<WordPressMedia>(
+              `/media/${member.image}`
+            );
+            imageUrl = mediaResponse.data.source_url;
+          } catch (error) {
+            console.error(`Error fetching media ${member.image}:`, error);
+          }
+        }
+
+        return {
+          name: member.name,
+          role: member.role,
+          image: imageUrl,
+          description: member.description,
+        };
+      })
+    );
+
+    return teamMembers;
+  } catch (error) {
+    console.error('Error fetching team members:', error);
+    return [];
   }
 }
 
