@@ -90,7 +90,7 @@ export default function NewNavigation() {
 
   const navClasses = `fixed top-0 left-0 right-0 z-50 transition-transform duration-300 transform ${
     isVisible ? "translate-y-0" : "-translate-y-full"
-  } ${isScrolled ? "py-0 bg-black/90 backdrop-blur-sm" : "py-0"}`;
+  } ${isScrolled ? "py-2 bg-black/90 backdrop-blur-sm" : "py-4"}`;
 
   const navStyle: React.CSSProperties = {
     backgroundImage: "url('/bg.png')",
@@ -117,19 +117,29 @@ export default function NewNavigation() {
   };
 
   return (
-    <div className={navClasses} style={navStyle}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        {/* Contact Info - Top Right */}
-        <div className="absolute right-4 top-1 z-10">
-          <div className="flex items-center justify-end space-x-2 text-xs text-yellow-400">
-            <span>Call Us: +675 325 2023</span>
-            <span>|</span>
-            <span>Email: enquiry@nextgenpng.net</span>
+    <div className="fixed top-0 left-0 right-0 z-50">
+      {/* Top contact bar */}
+      <div className="w-full bg-black/90 py-1">
+        <div className="container mx-auto flex justify-end px-4">
+          <div className="flex items-center space-x-4 text-yellow-400 text-xs font-medium">
+            <a href="tel:+6753252023" className="hover:text-yellow-300 transition-colors">
+              <span className="whitespace-nowrap">
+                <i className="mr-1">📞</i> +675 325 2023
+              </span>
+            </a>
+            <span className="text-gray-400">|</span>
+            <a href="mailto:enquiry@nextgenpng.net" className="hover:text-yellow-300 transition-colors">
+              <span className="whitespace-nowrap">
+                <i className="mr-1">✉️</i> enquiry@nextgenpng.net
+              </span>
+            </a>
           </div>
         </div>
-
-        {/* Main Navigation */}
-        <div className="pt-6">
+      </div>
+      
+      {/* Main navigation */}
+      <div className={navClasses} style={navStyle}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
               <Link
@@ -305,23 +315,139 @@ export default function NewNavigation() {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Mobile menu */}
-      {isMenuOpen && (
-        <div className="md:hidden bg-black/95 backdrop-blur-sm rounded-b-2xl overflow-hidden">
-          <div className="px-3 pt-3 pb-6 space-y-2 max-h-[90vh] overflow-y-auto">
-            <Link
-              to="/"
-              className="block px-4 py-3 rounded-xl text-base font-medium text-white hover:bg-white/20"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Home
-            </Link>
-            {/* Mobile dropdowns would go here */}
+        {/* Mobile menu */}
+        {isMenuOpen && (
+          <div className="md:hidden bg-black/95 backdrop-blur-sm rounded-b-2xl overflow-hidden">
+            <div className="px-3 pt-3 pb-6 space-y-2 max-h-[90vh] overflow-y-auto">
+              <Link
+                to="/"
+                className="block px-4 py-3 rounded-xl text-base font-medium text-white hover:bg-white/20"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Home
+              </Link>
+              {/* Mobile dropdowns */}
+              <div className="px-4 py-2">
+                <button
+                  onClick={toggleMobileServices}
+                  className="w-full flex justify-between items-center px-4 py-2 text-base font-medium text-left text-white hover:bg-white/20 rounded-lg"
+                >
+                  Services
+                  <ChevronDown
+                    className={`h-5 w-5 transition-transform ${
+                      isMobileServicesOpen ? "transform rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                {isMobileServicesOpen && (
+                  <div className="mt-2 pl-4 space-y-2">
+                    <Link
+                      to="/services/document-management"
+                      className="block px-4 py-2 text-sm text-green-400 hover:bg-white/10 rounded-lg"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        setIsMobileServicesOpen(false);
+                      }}
+                    >
+                      Document Management
+                    </Link>
+                    <Link
+                      to="/services/cctv"
+                      className="block px-4 py-2 text-sm text-green-400 hover:bg-white/10 rounded-lg"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        setIsMobileServicesOpen(false);
+                      }}
+                    >
+                      CCTV Solutions
+                    </Link>
+                    <Link
+                      to="/services/web-hosting"
+                      className="block px-4 py-2 text-sm text-green-400 hover:bg-white/10 rounded-lg"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        setIsMobileServicesOpen(false);
+                      }}
+                    >
+                      Web and Domain Hosting
+                    </Link>
+                  </div>
+                )}
+              </div>
+              
+              <div className="px-4 py-2">
+                <button
+                  onClick={toggleMobileCategory}
+                  className="w-full flex justify-between items-center px-4 py-2 text-base font-medium text-left text-white hover:bg-white/20 rounded-lg"
+                >
+                  Category
+                  <ChevronDown
+                    className={`h-5 w-5 transition-transform ${
+                      isMobileCategoryOpen ? "transform rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                {isMobileCategoryOpen && (
+                  <div className="mt-2 pl-4 space-y-2">
+                    <Link
+                      to="/products"
+                      className="block px-4 py-2 text-sm text-green-400 hover:bg-white/10 rounded-lg"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        setIsMobileCategoryOpen(false);
+                      }}
+                    >
+                      Products
+                    </Link>
+                    <Link
+                      to="/projects"
+                      className="block px-4 py-2 text-sm text-green-400 hover:bg-white/10 rounded-lg"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        setIsMobileCategoryOpen(false);
+                      }}
+                    >
+                      Projects
+                    </Link>
+                  </div>
+                )}
+              </div>
+              
+              <Link
+                to="/#about"
+                className="block px-4 py-3 rounded-xl text-base font-medium text-white hover:bg-white/20"
+                onClick={(e) => {
+                  if (window.location.pathname === "/") {
+                    e.preventDefault();
+                    document
+                      .getElementById("about")
+                      ?.scrollIntoView({ behavior: "smooth" });
+                  }
+                  setIsMenuOpen(false);
+                }}
+              >
+                About Us
+              </Link>
+              <Link
+                to="/#contact"
+                className="block px-4 py-3 rounded-xl text-base font-medium text-white hover:bg-white/20"
+                onClick={(e) => {
+                  if (window.location.pathname === "/") {
+                    e.preventDefault();
+                    document
+                      .getElementById("contact")
+                      ?.scrollIntoView({ behavior: "smooth" });
+                  }
+                  setIsMenuOpen(false);
+                }}
+              >
+                Contact
+              </Link>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
