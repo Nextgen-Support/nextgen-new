@@ -1,47 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useCCTVData, defaultCCTVData } from '@/hooks/useCCTVData';
 
 const CCTVSolutionsPage = () => {
-  const solutions = [
-    {
-      id: 1,
-      title: 'Holowits X Series HWT-X6741',
-      description: '4MP Super-low Light Full Control Dual Lens AI PTZ Dome Camera for 24/7 surveillance in any lighting condition.',
-      image: '/asset/image/cctv1.jpg',
-      features: [
-        '4MP Ultra HD resolution',
-        'Super-low light technology',
-        'Dual lens AI PTZ control',
-        'Weatherproof IP67 rated design',
-        'AI-powered motion detection',
-        'Wide dynamic range (WDR)'
-      ]
-    },
-    {
-      id: 2,
-      title: 'Smart Motion Detection',
-      description: 'Advanced algorithms that distinguish between relevant motion events and false alarms.',
-      image: '/asset/image/cctv2.png',
-      features: [
-        'AI-powered detection',
-        'Real-time alerts',
-        'Customizable zones',
-        'Reduced false alarms'
-      ]
-    },
-    {
-      id: 3,
-      title: 'Remote Monitoring',
-      description: 'Access your camera feeds from anywhere using your smartphone or computer.',
-      image: '/asset/image/cctv3.png',
-      features: [
-        'Mobile app access',
-        'Cloud storage options',
-        'Multi-user access',
-        'Secure encryption'
-      ]
-    }
-  ];
+  const { data, isLoading, error } = useCCTVData();
+  const pageData = data || defaultCCTVData;
 
   return (
     <div className="relative min-h-screen pt-24 px-4 overflow-hidden">
@@ -77,50 +40,122 @@ const CCTVSolutionsPage = () => {
       <div className="max-w-7xl mx-auto relative">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-green-400 mb-4">
-            Advanced CCTV Security Solutions
+          <h1 className="text-4xl md:text-5xl font-extrabold text-green-400 mb-2">
+            {pageData.page_title}
           </h1>
-          <p className="text-xl text-white max-w-3xl mx-auto">
-            Protect what matters most with our state-of-the-art surveillance systems designed for homes and businesses.
-          </p>
+          {pageData.page_description && (
+            <p className="text-xl text-white/90 max-w-3xl mx-auto mt-4">
+              {pageData.page_description}
+            </p>
+          )}
         </div>
 
         {/* Solutions Grid */}
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 mb-16">
-          {solutions.map((solution) => (
-            <div key={solution.id} className="flex flex-col bg-white/90 rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:shadow-xl hover:-translate-y-1 h-full">
-              <div className="h-48 overflow-hidden">
-                <img 
-                  src={solution.image} 
-                  alt={solution.title}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </div>
-              <div className="p-6 flex flex-col flex-grow">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{solution.title}</h3>
-                <p className="text-gray-700 mb-4">{solution.description}</p>
-                <ul className="space-y-2 mb-6">
-                  {solution.features.map((feature, index) => (
-                    <li key={index} className="flex items-start">
-                      <svg className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      <span className="text-gray-800">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-auto">
-                  <Link 
-                    to={`/contact?service=CCTV&solution=${encodeURIComponent(solution.title)}`}
-                    className="block w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-full transition-colors text-center"
-                  >
-                    Learn More
-                  </Link>
-                </div>
-              </div>
+          {/* Solution 1 */}
+          <div className="flex flex-col bg-white/90 rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:shadow-xl hover:-translate-y-1 h-full">
+            <div className="h-48 overflow-hidden">
+              <img 
+                src={pageData.image_1.url} 
+                alt={pageData.image_1.alt}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
             </div>
-          ))}
+            <div className="p-6 flex flex-col flex-grow">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">{pageData.sub_title_1}</h3>
+              <p className="text-gray-700 mb-4 flex-grow">{pageData.sub_description_1}</p>
+              <ul className="space-y-2 mb-6">
+                {pageData.bullet_points_1.map((point, index) => (
+                  <li key={index} className="flex items-start">
+                    <svg className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-gray-700">{point}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link
+                to="/contact"
+                className="mt-auto inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 transition-colors duration-200"
+              >
+                Get Started
+                <svg className="ml-2 -mr-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </Link>
+            </div>
+          </div>
+
+          {/* Solution 2 */}
+          <div className="flex flex-col bg-white/90 rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:shadow-xl hover:-translate-y-1 h-full">
+            <div className="h-48 overflow-hidden">
+              <img 
+                src={pageData.image_2.url} 
+                alt={pageData.image_2.alt}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </div>
+            <div className="p-6 flex flex-col flex-grow">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">{pageData.sub_title_2}</h3>
+              <p className="text-gray-700 mb-4 flex-grow">{pageData.sub_description_2}</p>
+              <ul className="space-y-2 mb-6">
+                {pageData.bullet_points_2.map((point, index) => (
+                  <li key={index} className="flex items-start">
+                    <svg className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-gray-700">{point}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link
+                to="/contact"
+                className="mt-auto inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 transition-colors duration-200"
+              >
+                Get Started
+                <svg className="ml-2 -mr-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </Link>
+            </div>
+          </div>
+
+          {/* Solution 3 */}
+          <div className="flex flex-col bg-white/90 rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:shadow-xl hover:-translate-y-1 h-full">
+            <div className="h-48 overflow-hidden">
+              <img 
+                src={pageData.image_3.url} 
+                alt={pageData.image_3.alt}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </div>
+            <div className="p-6 flex flex-col flex-grow">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">{pageData.sub_title_3}</h3>
+              <p className="text-gray-700 mb-4 flex-grow">{pageData.sub_description_3}</p>
+              <ul className="space-y-2 mb-6">
+                {pageData.bullet_points_3.map((point, index) => (
+                  <li key={index} className="flex items-start">
+                    <svg className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-gray-700">{point}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link
+                to="/contact"
+                className="mt-auto inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 transition-colors duration-200"
+              >
+                Get Started
+                <svg className="ml-2 -mr-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </Link>
+            </div>
+          </div>
         </div>
 
         {/* Additional Content */}
