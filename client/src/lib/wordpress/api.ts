@@ -31,14 +31,30 @@ export interface TeamMemberACF {
 }
 
 interface WordPressACFFields {
+  // General fields
   title?: string;
   sub_title?: string;
   background_video?: string;
+  
+  // Why Choose Us section
   why_choose_us_title?: string;
   why_choose_us_subtitle?: string;
   why_choose_us_image?: number;
   why_choose_us_items?: string[];
-  team_members?: TeamMemberACF[]; // Array of team members
+  
+  // Team section
+  team_members?: TeamMemberACF[];
+  
+  // Solutions section
+  title1?: string;
+  sub_title1?: string;
+  image1?: string;
+  title2?: string;
+  sub_title2?: string;
+  image2?: string;
+  title3?: string;
+  sub_title3?: string;
+  image3?: string;
 }
 
 export interface WordPressPost {
@@ -109,15 +125,36 @@ export const fetchPosts = async (params: Record<string, any> = {}): Promise<Word
   }
 };
 
-export const fetchPageBySlug = async (slug: string): Promise<WordPressPage | null> => {
+/**
+ * Fetches a WordPress page by its slug with ACF fields
+ * @param slug The page slug to fetch
+ * @param includeAcf Whether to include ACF fields (default: true)
+ */
+export const fetchPageBySlug = async (slug: string, includeAcf: boolean = true): Promise<WordPressPage | null> => {
   try {
+    // First try the regular WP REST API with ACF fields
     const response = await wordpressApi.get<WordPressPage[]>('/pages', {
       params: {
         slug,
         _embed: true, // Include featured media and author data
+        ...(includeAcf && { acf_format: 'standard' }), // Include ACF fields
       },
     });
-    return response.data?.[0] || null;
+
+    const page = response.data?.[0];
+    if (!page) return null;
+
+    // If ACF data is missing, try fetching it separately
+    if (includeAcf && !page.acf) {
+      try {
+        const acfResponse = await axios.get(`${WORDPRESS_ACF_API_URL}/pages/${page.id}`);
+        page.acf = acfResponse.data?.acf;
+      } catch (acfError) {
+        console.warn('Could not fetch ACF data separately:', acfError);
+      }
+    }
+
+    return page;
   } catch (error) {
     console.error(`Error fetching page with slug ${slug}:`, error);
     throw error;
