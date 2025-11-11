@@ -1,138 +1,101 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useWebHostingData, defaultWebHostingData } from '@/hooks/useWebHostingData';
 
-const WebHostingPage = () => {
-  const plans = [
-    {
-      title: 'Basic',
-      price: 'K55',
-      period: '/month (excluding GST)',
-      features: [
-        '1 domain / 1 website',
-        '7 POP3 email accounts',
-        '200MB disk space per mailbox',
-        '2GB monthly traffic',
-        '1 MySQL database',
-        'No cPanel access'
-      ],
-      popular: false
-    },
-    {
-      title: 'Standard',
-      price: 'K110',
-      period: '/month (excluding GST)',
-      features: [
-        '3 domains / 3 websites',
-        '15 POP3 email accounts',
-        '400MB disk space per mailbox',
-        '4GB monthly traffic',
-        '2 MySQL databases',
-        'No cPanel access'
-      ],
-      popular: false
-    },
-    {
-      title: 'Value',
-      price: 'K220',
-      period: '/month (excluding GST)',
-      features: [
-        '7 domains / 7 websites',
-        '30 POP3 email accounts',
-        '1GB disk space per mailbox',
-        '10GB monthly traffic',
-        '5 MySQL databases',
-        'With cPanel access'
-      ],
-      popular: false
-    },
-    {
-      title: 'Premium',
-      price: 'K440',
-      period: '/month (excluding GST)',
-      features: [
-        '15 domains / 15 websites',
-        '60 POP3 email accounts',
-        '2GB disk space per mailbox',
-        '20GB monthly traffic',
-        '10 MySQL databases',
-        'With cPanel access'
-      ],
-      popular: false
-    },
-    {
-      title: 'Premium Plus',
-      price: 'K550',
-      period: '/month (excluding GST)',
-      features: [
-        '15 domains / 15 websites',
-        '100 POP3 email accounts',
-        '2GB disk space per mailbox',
-        '20GB monthly traffic',
-        '10 MySQL databases',
-        'With cPanel access'
-      ],
-      popular: false
-    }
-  ];
+interface PlanProps {
+  plan: {
+    title: string;
+    price: string;
+    period: string;
+    features: string[];
+    popular: boolean;
+  };
+}
+
+const PlanCard: React.FC<PlanProps> = ({ plan }) => (
+  <div 
+    className={`flex-1 flex flex-col rounded-lg shadow-md overflow-hidden bg-blue-600 text-white ${
+      plan.popular ? 'ring-2 ring-blue-300 transform scale-[1.02]' : 'border border-blue-700'
+    }`}
+  >
+    <div className="px-4 py-5 sm:px-5 sm:py-6">
+      <div className="flex items-center justify-between">
+        <h3 className="inline-flex px-3 py-0.5 rounded-full text-xs font-semibold tracking-wide uppercase bg-blue-700 text-white">
+          {plan.title}
+        </h3>
+        {plan.popular && (
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-blue-300 text-blue-900">
+            Most Popular
+          </span>
+        )}
+      </div>
+      <div className="mt-3 flex items-baseline text-3xl font-bold">
+        {plan.price}
+        <span className="ml-1 text-base font-normal text-blue-100">
+          {plan.period}
+        </span>
+      </div>
+      <ul className="mt-4 space-y-2">
+        {plan.features.map((feature, i) => (
+          <li key={i} className="flex items-start">
+            <svg className="flex-shrink-0 h-4 w-4 text-green-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="ml-2 text-sm text-white">{feature}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+    <div className="flex-1 flex flex-col justify-end px-6 pt-6 pb-8 bg-blue-700 sm:p-10 sm:pt-6">
+      <div className="px-4 sm:px-5">
+        <button className="w-full bg-green-600 border border-transparent rounded-[10px] py-2 text-sm font-medium text-white text-center hover:bg-green-700 transition-colors">
+          Get started
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
+const WebHostingPage: React.FC = () => {
+  const { data, isLoading, error } = useWebHostingData();
+  const pageData = data || defaultWebHostingData;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-red-600">{error}</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-32 pb-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-100 pt-32 pb-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-green-600 sm:text-5xl">
-            Web Hosting Plans
+        <div className="text-center mb-16">
+          <h1 className="text-4xl font-extrabold text-green-600 sm:text-5xl md:text-6xl">
+            {pageData.page_title}
           </h1>
-          <p className="mt-4 text-xl text-green-500">
-            Choose the Plan that suits You
-          </p>
+          {pageData.page_description && (
+            <p className="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">
+              {pageData.page_description}
+            </p>
+          )}
         </div>
 
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5">
-          {plans.map((plan, index) => (
-            <div 
-              key={index}
-              className={`relative flex flex-col h-full min-h-[600px] rounded-2xl shadow-lg overflow-hidden ${
-                plan.popular ? 'ring-2 ring-yellow-500 transform -translate-y-2' : 'border border-blue-800'
-              } bg-blue-900`}
-            >
-              {plan.popular && (
-                <div className="absolute top-0 right-0 bg-yellow-500 text-gray-900 text-xs font-bold px-3 py-1 transform translate-x-2 -translate-y-2 rotate-12">
-                  POPULAR
-                </div>
-              )}
-              <div className="p-6 flex flex-col h-full">
-                <div className="flex-1">
-                  <h3 className="text-2xl font-bold text-center mb-4 text-white">{plan.title}</h3>
-                  <div className="text-center mb-6">
-                    <span className="text-4xl font-bold text-white">{plan.price}</span>
-                    <span className="text-gray-300">{plan.period}</span>
-                  </div>
-                  <ul className="space-y-3 mb-6">
-                    {plan.features.map((feature, i) => (
-                      <li key={i} className="flex items-start">
-                        <svg className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span className="text-gray-200">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="mt-6 pt-4 border-t border-blue-800">
-                  <Link 
-                    to="/contact"
-                    className={`block w-full py-3 px-4 rounded-xl font-medium text-center transition-colors ${
-                      plan.popular 
-                        ? 'bg-yellow-500 hover:bg-yellow-600 text-gray-900' 
-                        : 'bg-green-600 hover:bg-green-700 text-white'
-                    }`}
-                  >
-                    Get Started
-                  </Link>
-                </div>
-              </div>
-            </div>
-          ))}
+        <div className="grid gap-6 max-w-7xl mx-auto grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
+          {pageData.plans
+            .slice(0, 5) // Ensure we only show up to 5 plans
+            .map((plan, index) => (
+              <PlanCard key={`${plan.title}-${index}`} plan={plan} />
+            ))}
         </div>
       </div>
     </div>
