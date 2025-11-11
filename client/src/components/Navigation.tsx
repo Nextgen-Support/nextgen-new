@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 
-export default function NewNavigation() {
+export default function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
@@ -26,14 +26,10 @@ export default function NewNavigation() {
       const bannerHeight = 600;
       const isHomePage = window.location.pathname === "/";
 
-      if (
-        currentScrollY <= 100 ||
-        (isHomePage && currentScrollY < bannerHeight)
-      ) {
+      if (currentScrollY <= 100 || (isHomePage && currentScrollY < bannerHeight)) {
         setIsVisible(true);
       } else {
-        const scrollingDown =
-          currentScrollY > lastScrollY.current && currentScrollY > bannerHeight;
+        const scrollingDown = currentScrollY > lastScrollY.current && currentScrollY > bannerHeight;
         setIsVisible(!scrollingDown);
       }
 
@@ -48,16 +44,10 @@ export default function NewNavigation() {
   // Click outside to close
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        servicesRef.current &&
-        !servicesRef.current.contains(event.target as Node)
-      ) {
+      if (servicesRef.current && !servicesRef.current.contains(event.target as Node)) {
         setIsServicesOpen(false);
       }
-      if (
-        categoryRef.current &&
-        !categoryRef.current.contains(event.target as Node)
-      ) {
+      if (categoryRef.current && !categoryRef.current.contains(event.target as Node)) {
         setIsCategoryOpen(false);
       }
     };
@@ -66,13 +56,9 @@ export default function NewNavigation() {
   }, []);
 
   const toggleServices = () => setIsServicesOpen(!isServicesOpen);
-  const toggleMobileServices = () =>
-    setIsMobileServicesOpen(!isMobileServicesOpen);
-
+  const toggleMobileServices = () => setIsMobileServicesOpen(!isMobileServicesOpen);
   const toggleCategory = () => setIsCategoryOpen(!isCategoryOpen);
-  const toggleMobileCategory = () =>
-    setIsMobileCategoryOpen(!isMobileCategoryOpen);
-
+  const toggleMobileCategory = () => setIsMobileCategoryOpen(!isMobileCategoryOpen);
   const toggleGuides = () => setIsGuidesOpen(!isGuidesOpen);
   const toggleMobileGuides = () => setIsMobileGuidesOpen(!isMobileGuidesOpen);
   
@@ -90,7 +76,7 @@ export default function NewNavigation() {
 
   const navClasses = `fixed top-0 left-0 right-0 z-50 transition-transform duration-300 transform ${
     isVisible ? "translate-y-0" : "-translate-y-full"
-  } ${isScrolled ? "py-0 bg-black/90 backdrop-blur-sm" : "py-0"}`;
+  } ${isScrolled ? "py-2 bg-black/90 backdrop-blur-sm" : "py-4"}`;
 
   const navStyle: React.CSSProperties = {
     backgroundImage: "url('/bg.png')",
@@ -117,19 +103,29 @@ export default function NewNavigation() {
   };
 
   return (
-    <div className={navClasses} style={navStyle}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        {/* Contact Info - Top Right */}
-        <div className="absolute right-4 top-1 z-10">
-          <div className="flex items-center justify-end space-x-2 text-xs text-yellow-400">
-            <span>Call Us: +675 325 2023</span>
-            <span>|</span>
-            <span>Email: enquiry@nextgenpng.net</span>
+    <div className="fixed top-0 left-0 right-0 z-50">
+      {/* Top contact bar */}
+      <div className="w-full bg-black/90 py-1">
+        <div className="container mx-auto flex justify-end px-4">
+          <div className="flex items-center space-x-4 text-yellow-400 text-xs font-medium">
+            <a href="tel:+6753252023" className="hover:text-yellow-300 transition-colors">
+              <span className="whitespace-nowrap">
+                <i className="mr-1">📞</i> +675 325 2023
+              </span>
+            </a>
+            <span className="text-gray-400">|</span>
+            <a href="mailto:enquiry@nextgenpng.net" className="hover:text-yellow-300 transition-colors">
+              <span className="whitespace-nowrap">
+                <i className="mr-1">✉️</i> enquiry@nextgenpng.net
+              </span>
+            </a>
           </div>
         </div>
-
-        {/* Main Navigation */}
-        <div className="pt-6">
+      </div>
+      
+      {/* Main navigation */}
+      <div className={navClasses} style={navStyle}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
               <Link
@@ -193,6 +189,13 @@ export default function NewNavigation() {
                         onClick={() => setIsServicesOpen(false)}
                       >
                         Document Management
+                      </Link>
+                      <Link
+                        to="/services/cctv"
+                        className="block px-4 py-2 text-sm text-green-400 hover:bg-white/10"
+                        onClick={() => setIsServicesOpen(false)}
+                      >
+                        CCTV Solutions
                       </Link>
                       <Link
                         to="/services/web-hosting"
@@ -339,23 +342,170 @@ export default function NewNavigation() {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Mobile menu */}
-      {isMenuOpen && (
-        <div className="md:hidden bg-black/95 backdrop-blur-sm rounded-b-2xl overflow-hidden">
-          <div className="px-3 pt-3 pb-6 space-y-2 max-h-[90vh] overflow-y-auto">
-            <Link
-              to="/"
-              className="block px-4 py-3 rounded-xl text-base font-medium text-white hover:bg-white/20"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Home
-            </Link>
-            {/* Mobile dropdowns would go here */}
+        {/* Mobile menu */}
+        {isMenuOpen && (
+          <div className="md:hidden bg-black/95 backdrop-blur-sm rounded-b-2xl overflow-hidden">
+            <div className="px-3 pt-3 pb-6 space-y-2 max-h-[90vh] overflow-y-auto">
+              <Link
+                to="/"
+                className="block px-4 py-3 rounded-xl text-base font-medium text-white hover:bg-white/20"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Home
+              </Link>
+
+              <div>
+                <button
+                  onClick={toggleMobileServices}
+                  className="w-full flex justify-between items-center px-4 py-3 rounded-xl text-base font-medium text-white hover:bg-white/20 pr-6"
+                >
+                  <span>Services</span>
+                  <ChevronDown
+                    className={`h-5 w-5 transition-transform ${
+                      isMobileServicesOpen ? "transform rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                {isMobileServicesOpen && (
+                  <div className="pl-4 space-y-1">
+                    <Link
+                      to="/services/document-management"
+                      className="block w-full px-4 py-2.5 rounded-xl text-base font-medium text-green-400 hover:bg-white/20"
+                      onClick={() => {
+                        setIsMobileServicesOpen(false);
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      Document Management
+                    </Link>
+                    <Link
+                      to="/services/cctv"
+                      className="block w-full px-4 py-2.5 rounded-xl text-base font-medium text-green-400 hover:bg-white/20"
+                      onClick={() => {
+                        setIsMobileServicesOpen(false);
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      CCTV Solutions
+                    </Link>
+                    <Link
+                      to="/services/web-hosting"
+                      className="block w-full px-4 py-2.5 rounded-xl text-base font-medium text-green-400 hover:bg-white/20"
+                      onClick={() => {
+                        setIsMobileServicesOpen(false);
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      Web and Domain Hosting
+                    </Link>
+                    <button
+                      onClick={toggleMobileSupport}
+                      className="w-full text-left px-4 py-2.5 rounded-xl text-base font-medium text-green-400 hover:bg-white/20 flex justify-between items-center"
+                    >
+                      <span>Support</span>
+                      <ChevronDown
+                        className={`h-5 w-5 transition-transform ${
+                          isMobileSupportOpen ? "transform rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+                    {isMobileSupportOpen && (
+                      <div className="pl-4 space-y-1">
+                        <Link
+                          to="/support/guides"
+                          className="block w-full px-4 py-2 text-sm text-green-400 hover:bg-white/10 rounded-lg"
+                          onClick={() => {
+                            setIsMobileSupportOpen(false);
+                            setIsMenuOpen(false);
+                          }}
+                        >
+                          Guides
+                        </Link>
+                        <Link
+                          to="/support/request"
+                          className="block w-full px-4 py-2 text-sm text-green-400 hover:bg-white/10 rounded-lg"
+                          onClick={() => {
+                            setIsMobileSupportOpen(false);
+                            setIsMenuOpen(false);
+                          }}
+                        >
+                          Submit Request
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <button
+                  onClick={toggleMobileCategory}
+                  className="w-full flex justify-between items-center px-4 py-3 rounded-xl text-base font-medium text-white hover:bg-white/20 pr-6"
+                >
+                  <span>Category</span>
+                  <ChevronDown
+                    className={`h-5 w-5 transition-transform ${
+                      isMobileCategoryOpen ? "transform rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                {isMobileCategoryOpen && (
+                  <div className="pl-4 space-y-1">
+                    <Link
+                      to="/products"
+                      className="block w-full px-4 py-2.5 rounded-xl text-base font-medium text-green-400 hover:bg-white/20"
+                      onClick={() => {
+                        setIsMobileCategoryOpen(false);
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      Products
+                    </Link>
+                    <Link
+                      to="/projects"
+                      className="block w-full px-4 py-2.5 rounded-xl text-base font-medium text-green-400 hover:bg-white/20"
+                      onClick={() => {
+                        setIsMobileCategoryOpen(false);
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      Projects
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              <Link
+                to="/#about"
+                className="block px-4 py-3 rounded-xl text-base font-medium text-white hover:bg-white/20"
+                onClick={(e) => {
+                  if (window.location.pathname === "/") {
+                    e.preventDefault();
+                    document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
+                  }
+                  setIsMenuOpen(false);
+                }}
+              >
+                About Us
+              </Link>
+              <Link
+                to="/#contact"
+                className="block px-4 py-3 rounded-xl text-base font-medium text-white hover:bg-white/20"
+                onClick={(e) => {
+                  if (window.location.pathname === "/") {
+                    e.preventDefault();
+                    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                  }
+                  setIsMenuOpen(false);
+                }}
+              >
+                Contact
+              </Link>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

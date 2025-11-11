@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import NewNavigation from './NewNavigation';
+import Navigation from './Navigation';
 import Footer from './footer';
 import BackToTop from './back-to-top';
 
@@ -19,7 +19,7 @@ export default function Layout({ children }: LayoutProps) {
         />
         <div className="absolute inset-0 bg-black/30" style={{ zIndex: -1 }} />
       </div>
-      <NewNavigation />
+      <Navigation />
       <main className="flex-grow">
         {children}
       </main>

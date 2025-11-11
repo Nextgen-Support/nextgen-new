@@ -75,13 +75,13 @@ export default function NewNavigation() {
 
   const toggleGuides = () => setIsGuidesOpen(!isGuidesOpen);
   const toggleMobileGuides = () => setIsMobileGuidesOpen(!isMobileGuidesOpen);
-
+  
   const toggleSupport = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsSupportOpen(!isSupportOpen);
     if (isGuidesOpen) setIsGuidesOpen(false);
   };
-
+  
   const toggleMobileSupport = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsMobileSupportOpen(!isMobileSupportOpen);
@@ -221,6 +221,47 @@ export default function NewNavigation() {
                       >
                         Web and Domain Hosting
                       </Link>
+                      <div className="relative group">
+                        <button
+                          onClick={toggleSupport}
+                          className="w-full text-left px-4 py-2 text-green-400 hover:bg-white/10 flex justify-between items-center text-sm font-medium"
+                        >
+                          Support
+                          <ChevronDown
+                            className={`ml-1 h-4 w-4 transition-transform ${
+                              isSupportOpen ? 'transform rotate-180' : ''
+                            }`}
+                          />
+                        </button>
+                        {isSupportOpen && (
+                          <div className="absolute left-0 mt-1 ml-4 w-56 rounded-md shadow-lg bg-black/80 backdrop-blur-sm border border-white/10 z-10">
+                            <div className="py-1">
+                              <Link
+                                to="/support/guides"
+                                className="block px-4 py-2 text-sm text-green-400 hover:bg-white/10 font-medium"
+                                onClick={() => {
+                                  setIsServicesOpen(false);
+                                  setIsSupportOpen(false);
+                                }}
+                              >
+                                Guides
+                              </Link>
+                              <div className="border-t border-white/10 mt-1">
+                                <Link
+                                  to="/support/request"
+                                  className="block px-4 py-2 text-sm text-green-400 hover:bg-white/10 font-medium"
+                                  onClick={() => {
+                                    setIsServicesOpen(false);
+                                    setIsSupportOpen(false);
+                                  }}
+                                >
+                                  Submit Request
+                                </Link>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}
@@ -372,6 +413,41 @@ export default function NewNavigation() {
                     >
                       Web and Domain Hosting
                     </Link>
+                    <button
+                      onClick={toggleMobileSupport}
+                      className="w-full text-left px-4 py-2 text-sm text-green-400 hover:bg-white/10 rounded-lg flex justify-between items-center"
+                    >
+                      <span>Support</span>
+                      <ChevronDown
+                        className={`h-4 w-4 transition-transform ${
+                          isMobileSupportOpen ? 'transform rotate-180' : ''
+                        }`}
+                      />
+                    </button>
+                    {isMobileSupportOpen && (
+                      <div className="pl-4 space-y-1">
+                        <Link
+                          to="/support/guides"
+                          className="block w-full px-4 py-2 text-sm text-green-400 hover:bg-white/10 rounded-lg"
+                          onClick={() => {
+                            setIsMobileSupportOpen(false);
+                            setIsMenuOpen(false);
+                          }}
+                        >
+                          Guides
+                        </Link>
+                        <Link
+                          to="/support/request"
+                          className="block w-full px-4 py-2 text-sm text-green-400 hover:bg-white/10 rounded-lg"
+                          onClick={() => {
+                            setIsMobileSupportOpen(false);
+                            setIsMenuOpen(false);
+                          }}
+                        >
+                          Submit Request
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
