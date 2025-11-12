@@ -80,11 +80,11 @@ const PlanCard: React.FC<PlanProps> = ({
         </ul>
       )}
     </div>
-    <div className="flex-1 flex flex-col justify-end px-6 pt-8 pb-10 bg-blue-700 sm:px-8 sm:pt-10 sm:pb-12">
-      <div className="px-4 sm:px-6">
+    <div className="flex-1 flex flex-col justify-end bg-blue-700 pt-8 pb-10 sm:pt-10 sm:pb-12">
+      <div className="w-full px-4">
         <button 
           onClick={() => window.location.href = '/contact'}
-          className="w-full bg-green-600 border border-transparent rounded-[10px] py-2 text-sm font-medium text-white text-center hover:bg-green-700 transition-colors cursor-pointer"
+          className="w-[calc(100%+1rem)] -ml-2 bg-green-600 border border-transparent rounded-xl py-2.5 text-base font-medium text-white text-center hover:bg-green-700 transition-all duration-200 cursor-pointer shadow-md hover:shadow-lg transform hover:scale-105"
         >
           Get started
         </button>
