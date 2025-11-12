@@ -22,20 +22,24 @@ const DocumentManagementPage = () => {
     );
   }
 
+  // Mobile background has been removed as requested
+
   return (
     <div className="bg-gray-50 pt-28 pb-12 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Hero Section */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-            <div className="block">Document</div>
-            <div className="block text-green-600">Management Solutions</div>
-          </h1>
-          {pageData.page_description && (
-            <p className="mt-3 max-w-3xl mx-auto text-base text-gray-600 sm:text-lg md:mt-5 md:text-xl">
-              {pageData.page_description}
-            </p>
-          )}
+        <div className="mb-16">
+          <div className="text-center py-8 px-4 sm:px-6 lg:px-8">
+            <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+              <div className="block">Document</div>
+              <div className="block text-green-600">Management Solutions</div>
+            </h1>
+            {pageData.page_description && (
+              <p className="mt-3 max-w-3xl mx-auto text-base text-gray-600 sm:text-lg md:mt-5 md:text-xl">
+                {pageData.page_description}
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Two Column Grid */}
