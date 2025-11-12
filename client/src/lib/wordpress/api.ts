@@ -1,10 +1,10 @@
 import axios, { AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios';
 
-// Base WordPress URL - update this to match your WordPress installation
-const WORDPRESS_BASE_URL = 'http://localhost/wp-cms';
-const WORDPRESS_API_URL = `${WORDPRESS_BASE_URL}/wp-json`;
-const WORDPRESS_REST_API_URL = `${WORDPRESS_API_URL}/wp/v2`;
-const WORDPRESS_ACF_API_URL = `${WORDPRESS_API_URL}/acf/v3`;
+// WordPress API configuration from environment variables
+const WORDPRESS_BASE_URL = import.meta.env.VITE_WORDPRESS_API_URL || '';
+const WORDPRESS_REST_API_URL = import.meta.env.VITE_WORDPRESS_REST_API_URL || '';
+const WORDPRESS_API_URL = WORDPRESS_REST_API_URL.replace('/wp/v2', '') || '';
+const WORDPRESS_ACF_API_URL = WORDPRESS_API_URL ? `${WORDPRESS_API_URL}/acf/v3` : '';
 
 // Add debug logs to show the API URLs being used
 console.log('WordPress API Configuration:', {
