@@ -23,6 +23,7 @@ import AndroidEmailSetup from "./pages/support/guides/android-email-setup";
 import IosEmailSetup from "./pages/support/guides/ios-email-setup";
 import ServiceRequests from "./pages/admin/service-requests";
 import NotFound from "./pages/not-found";
+import WhatsNew from "./pages/whats-new";
 
 function Router() {
   return (
@@ -40,6 +41,7 @@ function Router() {
           <Route path="products" element={<Products />} />
           <Route path="careers" element={<Careers />} />
           <Route path="news" element={<News />} />
+          <Route path="whats-new" element={<WhatsNew />} />
           <Route path="contact" element={<Contact />} />
           <Route path="support" element={<SupportLayout />}>
             <Route index element={<SupportGuides />} />

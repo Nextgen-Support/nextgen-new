@@ -167,6 +167,19 @@ export default function Navigation() {
                 Home
               </Link>
 
+              {/* What's New */}
+              <Link
+                to="/whats-new"
+                className="px-3 py-2 rounded-md text-sm font-medium hover:bg-white/20 no-underline"
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  setIsVisible(true);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+              >
+                What's New
+              </Link>
+
               {/* Services dropdown */}
               <div className="relative" ref={servicesRef}>
                 <button
@@ -301,9 +314,10 @@ export default function Navigation() {
                 onClick={(e) => {
                   if (window.location.pathname === "/") {
                     e.preventDefault();
-                    document
-                      .getElementById("about")
-                      ?.scrollIntoView({ behavior: "smooth" });
+                    const aboutSection = document.getElementById('about');
+                    if (aboutSection) {
+                      aboutSection.scrollIntoView({ behavior: 'smooth' });
+                    }
                   }
                   setIsMenuOpen(false);
                 }}
@@ -349,10 +363,17 @@ export default function Navigation() {
             <div className="px-3 pt-3 pb-6 space-y-2 max-h-[90vh] overflow-y-auto">
               <Link
                 to="/"
-                className="block px-4 py-3 rounded-xl text-base font-medium text-white hover:bg-white/20"
+                className="block px-3 py-2 rounded-md text-base font-medium hover:bg-white/20 no-underline"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Home
+              </Link>
+              <Link
+                to="/whats-new"
+                className="block px-3 py-2 rounded-md text-base font-medium hover:bg-white/20 no-underline"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                What's New
               </Link>
 
               <div>
