@@ -28,8 +28,8 @@ const DocumentManagementPage = () => {
         {/* Hero Section */}
         <div className="text-center mb-16">
           <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-            <span className="block">{pageData.page_title}</span>
-            <span className="block text-green-600">Management Solutions</span>
+            <div className="block">Document</div>
+            <div className="block text-green-600">Management Solutions</div>
           </h1>
           {pageData.page_description && (
             <p className="mt-3 max-w-3xl mx-auto text-base text-gray-600 sm:text-lg md:mt-5 md:text-xl">
