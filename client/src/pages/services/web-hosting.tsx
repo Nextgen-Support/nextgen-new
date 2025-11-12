@@ -25,11 +25,17 @@ const PlanCard: React.FC<PlanProps> = ({
   } 
 }) => (
   <div 
-    className={`flex-1 flex flex-col rounded-2xl shadow-md overflow-hidden bg-blue-600 text-white ${
+    className={`flex-1 flex flex-col rounded-2xl shadow-md overflow-hidden bg-blue-600 text-white min-h-[500px] ${
       popular ? 'ring-2 ring-blue-300 transform scale-[1.02]' : 'border border-blue-700'
     }`}
+    style={{
+      minHeight: '500px',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between'
+    }}
   >
-    <div className="px-4 py-5 sm:px-5 sm:py-6">
+    <div className="px-4 py-8 sm:px-6 sm:py-10">
       <div className="flex items-center justify-between">
         <h3 className="inline-flex px-3 py-0.5 rounded-full text-xs font-semibold tracking-wide uppercase bg-blue-700 text-white">
           {title}
@@ -74,8 +80,8 @@ const PlanCard: React.FC<PlanProps> = ({
         </ul>
       )}
     </div>
-    <div className="flex-1 flex flex-col justify-end px-6 pt-6 pb-8 bg-blue-700 sm:p-10 sm:pt-6">
-      <div className="px-4 sm:px-5">
+    <div className="flex-1 flex flex-col justify-end px-6 pt-8 pb-10 bg-blue-700 sm:px-8 sm:pt-10 sm:pb-12">
+      <div className="px-4 sm:px-6">
         <button 
           onClick={() => window.location.href = '/contact'}
           className="w-full bg-green-600 border border-transparent rounded-[10px] py-2 text-sm font-medium text-white text-center hover:bg-green-700 transition-colors cursor-pointer"
