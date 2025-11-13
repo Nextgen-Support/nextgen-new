@@ -33,6 +33,7 @@ export interface TeamMemberACF {
 interface WordPressACFFields {
   // General fields
   title?: string;
+  page_title?: string;
   sub_title?: string;
   background_video?: string;
   
@@ -132,20 +133,27 @@ export const fetchPosts = async (params: Record<string, any> = {}): Promise<Word
  */
 export const fetchPageBySlug = async (slug: string, includeAcf: boolean = true): Promise<WordPressPage | null> => {
   try {
-    // First try the regular WP REST API with ACF fields
+    console.log(`Fetching page with slug: ${slug}`);
     const response = await wordpressApi.get<WordPressPage[]>('/pages', {
       params: {
         slug,
-        _embed: true, // Include featured media and author data
-        ...(includeAcf && { acf_format: 'standard' }), // Include ACF fields
+        _embed: 'wp:featuredmedia',
+        _fields: ['id', 'title', 'content', 'acf'].join(',')
       },
     });
 
     const page = response.data?.[0];
-    if (!page) return null;
+    if (!page) {
+      console.error(`Page with slug '${slug}' not found`);
+      return null;
+    }
 
-    // If ACF data is missing, try fetching it separately
+    console.log('Page data received:', page);
+
+    // If ACF data is missing, log a warning
     if (includeAcf && !page.acf) {
+      console.warn('ACF data is missing from the page response');
+      console.log('Available page data:', Object.keys(page));
       try {
         const acfResponse = await axios.get(`${WORDPRESS_ACF_API_URL}/pages/${page.id}`);
         page.acf = acfResponse.data?.acf;
@@ -592,6 +600,151 @@ export async function fetchTeamMembers(): Promise<TeamMember[]> {
   } catch (error) {
     console.error('Error fetching team members:', error);
     return [];
+  }
+}
+
+// Our Products data interface
+export interface OurProductsData {
+  pageTitle: string;
+  cards: Array<{
+    title: string;
+    description: string;
+    feature: string;
+    bullets: string[];
+    link: string;
+    icon: string;
+    color: string;
+  }>;
+}
+
+// Extend WordPressACFFields with our products fields
+declare module './api' {
+  interface WordPressACFFields {
+    // Our Products fields - must match WordPress ACF field names exactly
+    page_title?: string;
+    card_1_title?: string;
+    card_1_description?: string;
+    card_1_feature?: string;
+    card_1_bullets?: string;
+    card_2_title?: string;
+    card_2_description?: string;
+    card_2_feature?: string;
+    card_2_bullets?: string;
+    card_3_title?: string;
+    card_3_description?: string;
+    card_3_feature?: string;
+    card_3_bullets?: string;
+    card_4_title?: string;
+    card_4_decsription?: string;  // Note: This has a typo to match WordPress
+    card_4_feature?: string;
+    card_4_bullets?: string;
+  }
+}
+
+/**
+ * Fetches Our Products data from WordPress
+ */
+export async function fetchOurProducts(): Promise<OurProductsData | null> {
+  try {
+    console.log('Fetching Our Products page...');
+    const page = await fetchPageBySlug('our-products');
+    
+    console.log('Page data:', page);
+    
+    if (!page) {
+      console.error('❌ Our Products page not found. Please ensure:');
+      console.log('1. A page with the slug "our-products" exists in WordPress');
+      console.log('2. The page is published (not draft or private)');
+      console.log('3. The WordPress REST API is accessible at:', WORDPRESS_REST_API_URL);
+      return null;
+    }
+    
+    if (!page.acf) {
+      console.error('❌ ACF data not found on the page. Please check:');
+      console.log('1. The "OurProducts" ACF field group is assigned to this page');
+      console.log('2. ACF is properly registered in the REST API');
+      console.log('3. The ACF field group has the correct location rules');
+      console.log('4. The page ID is:', page.id);
+      
+      // Try to fetch ACF data directly
+      try {
+        console.log('Attempting to fetch ACF data directly...');
+        const acfResponse = await axios.get(`${WORDPRESS_REST_API_URL}/pages/${page.id}?_fields=acf`);
+        console.log('Direct ACF response:', acfResponse.data);
+      } catch (acfError) {
+        console.error('Failed to fetch ACF data directly:', acfError);
+      }
+      
+      return null;
+    }
+    
+    console.log('✅ ACF data received. Available fields:', Object.keys(page.acf));
+
+    const { acf } = page;
+    const cards = [];
+
+    // Helper function to create card data
+    const createCard = (prefix: string, link: string, icon: string, color: string) => {
+      const titleKey = `${prefix}_title`;
+      const descriptionKey = `${prefix}_description`; // Fixed to use correct spelling
+      const featureKey = `${prefix}_feature`;
+      const bulletsKey = `${prefix}_bullets`;
+      
+      const title = acf[titleKey as keyof WordPressACFFields] as string | undefined;
+      const description = acf[descriptionKey as keyof WordPressACFFields] as string | undefined;
+      const feature = acf[featureKey as keyof WordPressACFFields] as string | undefined;
+      const bullets = acf[bulletsKey as keyof WordPressACFFields] as string | undefined;
+      
+      console.log(`Card ${prefix} fields:`, {
+        titleKey, title,
+        descriptionKey, description,
+        featureKey, feature,
+        bulletsKey, bullets
+      });
+
+      if (title && description && feature && bullets) {
+        return {
+          title,
+          description,
+          feature,
+          bullets: bullets.split('\n').filter(Boolean),
+          link,
+          icon,
+          color
+        };
+      }
+      return null;
+    };
+
+    // Add each card if it has the required fields
+    const card1 = createCard('card_1', '/products/cctv-systems', '🎥', 'from-blue-600 to-blue-800');
+    const card2 = createCard('card_2', '/products/networking', '🌐', 'from-green-600 to-green-800');
+    const card3 = createCard('card_3', '/products/security-systems', '🔒', 'from-purple-600 to-purple-800');
+    const card4 = createCard('card_4', '/products/storage-solutions', '💾', 'from-red-600 to-red-800');
+
+    console.log('Card creation results:', { card1, card2, card3, card4 });
+
+    // Only add cards that have all required fields
+    if (card1) cards.push(card1);
+    if (card2) cards.push(card2);
+    if (card3) cards.push(card3);
+    if (card4) cards.push(card4);
+    
+    console.log('Final cards array:', cards);
+
+    if (cards.length === 0) {
+      console.error('No valid product cards found in ACF data. Please check that all required fields are filled in WordPress.');
+      console.log('Available ACF fields:', Object.keys(acf));
+      return null;
+    }
+
+    return {
+      pageTitle: acf.page_title || 'Our Products',
+      cards
+    };
+  } catch (error) {
+    console.error('Error fetching Our Products data:', error);
+    return null;
   }
 }
 

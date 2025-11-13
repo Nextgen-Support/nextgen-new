@@ -11,7 +11,7 @@ import CCTVSolutions from "./pages/services/cctv";
 import WebHosting from "./pages/services/web-hosting";
 import SecuritySolutions from "./pages/services/security";
 import Projects from "./pages/projects";
-import Products from "./pages/products";
+import Products from "./pages/products/index";
 import Careers from "./pages/careers";
 import News from "./pages/news";
 import Contact from "./pages/contact";

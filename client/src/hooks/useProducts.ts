@@ -1,153 +1,210 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import wordpressApi from "../lib/wordpress/api";
+import { useState, useEffect } from 'react';
+import wordpressApi from '../lib/wordpress/api';
 
-// Define types
-interface ProductACFFields {
-  price?: number;
-  features?: string[];
-  category?: string;
-  link?: string;
+export interface ProductCard {
+  title: string;
+  description: string;
+  feature: string;
+  bullets: string[];
+  link: string;
+  icon: string;
+  color: string;
 }
 
-interface WordPressPost {
-  id: number;
-  title: {
-    rendered: string;
-  };
-  excerpt: {
-    rendered: string;
-  };
-  slug: string;
-  acf?: ProductACFFields;
-  _embedded?: {
-    "wp:featuredmedia"?: Array<{
-      source_url: string;
-      alt_text: string;
-    }>;
-  };
+export interface OurProductsData {
+  page_title: string;
+  cards: ProductCard[];
+  [key: string]: any;
 }
 
-export interface Product {
-  id: number;
-  title: string | { rendered: string };
-  excerpt: string | { rendered: string };
-  slug: string;
-  acf?: ProductACFFields;
-  _embedded?: {
-    "wp:featuredmedia"?: Array<{
-      source_url: string;
-      alt_text: string;
-    }>;
-  };
-}
-
-// In-memory cache for fallback
-const memoryCache: { data: Product[] | null; timestamp: number | null } = {
-  data: null,
-  timestamp: null,
+// Default data in case the API fails
+const defaultProductsData: OurProductsData = {
+  page_title: 'Our Products',
+  cards: [
+    {
+      title: 'CCTV Systems',
+      description: 'High-definition surveillance systems for comprehensive security monitoring.',
+      feature: '24/7 Monitoring',
+      bullets: [
+        'High-definition cameras',
+        'Night vision',
+        'Motion detection',
+        'Remote access',
+      ],
+      link: '/products/cctv-systems',
+      icon: '🎥',
+      color: 'from-blue-600 to-blue-800',
+    },
+    {
+      title: 'Networking',
+      description: 'Enterprise-grade networking solutions for reliable connectivity.',
+      feature: 'High-Speed',
+      bullets: [
+        'Enterprise routers',
+        'Switches',
+        'WiFi solutions',
+        'Network security',
+      ],
+      link: '/products/networking',
+      icon: '🌐',
+      color: 'from-green-600 to-green-800',
+    },
+    {
+      title: 'Security Systems',
+      description: 'Advanced security solutions to protect your business assets.',
+      feature: 'Complete Protection',
+      bullets: [
+        'Access control',
+        'Alarm systems',
+        'Video surveillance',
+        '24/7 monitoring',
+      ],
+      link: '/products/security-systems',
+      icon: '🔒',
+      color: 'from-purple-600 to-purple-800',
+    },
+    {
+      title: 'Storage Solutions',
+      description: 'Scalable storage solutions for all your business needs.',
+      feature: 'High Capacity',
+      bullets: [
+        'NAS systems',
+        'SAN solutions',
+        'Cloud storage',
+        'Backup solutions',
+      ],
+      link: '/products/storage-solutions',
+      icon: '💾',
+      color: 'from-red-600 to-red-800',
+    },
+  ],
 };
 
-// Cache duration in milliseconds (5 minutes)
-const CACHE_DURATION = 5 * 60 * 1000;
+/**
+ * Fetches and manages Our Products page data from WordPress
+ * @returns {Object} An object containing products data, loading state, and error state
+ */
+export const useProducts = () => {
+  const [data, setData] = useState<OurProductsData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-// Process WordPress post to our Product format
-const processWordPressPost = (post: WordPressPost): Product => ({
-  id: post.id,
-  title: post.title.rendered,
-  excerpt: post.excerpt.rendered,
-  slug: post.slug,
-  acf: post.acf,
-  _embedded: post._embedded,
-});
-
-export function useProducts() {
-  const queryClient = useQueryClient();
-
-  return useQuery<Product[], Error>({
-    queryKey: ["products"],
-    queryFn: async (): Promise<Product[]> => {
+  useEffect(() => {
+    const fetchData = async () => {
       try {
-        // Return in-memory cached data if available and not expired
-        if (
-          memoryCache.data &&
-          memoryCache.timestamp &&
-          Date.now() - memoryCache.timestamp < CACHE_DURATION
-        ) {
-          console.log("Using in-memory cached products data");
-          return memoryCache.data;
-        }
+        console.log('Fetching Our Products page data...');
 
-        // Use performance API to measure request time
-        const startTime = performance.now();
-
-        const response = await wordpressApi.get<WordPressPost[]>("/posts", {
+        // Fetch the page by slug
+        const pageResponse = await wordpressApi.get('/pages', {
           params: {
-            _embed: "wp:featuredmedia",
-            per_page: 12,
-            categories: "products",
-            _fields: ["id", "title", "slug", "excerpt", "acf"].join(","),
-            _cacheBuster:
-              process.env.NODE_ENV === "development" ? Date.now() : undefined,
+            slug: 'our-products',
+            _embed: true,
+            acf_format: 'standard',
+            _fields: 'id,title,acf,content',
           },
-          timeout: 5000,
         });
 
-        const endTime = performance.now();
-        console.log(
-          `Products fetched in ${(endTime - startTime).toFixed(2)}ms`
-        );
+        const pageData = pageResponse.data?.[0];
+        console.log('Page data:', pageData);
 
-        // Process the response data
-        const products = response.data.map(processWordPressPost);
-
-        // Update memory cache
-        memoryCache.data = products;
-        memoryCache.timestamp = Date.now();
-
-        return products;
-      } catch (error) {
-        console.error("Error fetching products:", error);
-
-        // Return in-memory cached data if available (even if expired)
-        if (memoryCache.data) {
-          console.log(
-            "Using in-memory cached products data (possibly expired)"
-          );
-          return memoryCache.data;
+        if (!pageData) {
+          console.warn('Our Products page not found, using default data');
+          setData(defaultProductsData);
+          setIsLoading(false);
+          return;
         }
 
-        // Fallback to query cache
-        try {
-          const queryCache = queryClient.getQueryCache();
-          const cachedData = queryCache.find({ queryKey: ["products"] })?.state
-            .data;
-          if (cachedData) {
-            console.log("Using query cache products data");
-            // Update memory cache for next time
-            memoryCache.data = Array.isArray(cachedData) ? cachedData : [];
-            memoryCache.timestamp = Date.now();
-            return memoryCache.data;
+        const acfData = pageData.acf || {};
+        console.log('ACF data:', acfData);
+
+        // Process bullet points from text area to array
+        const processBulletPoints = (points: string): string[] => {
+          if (!points) return [];
+          return points.split('\n').filter(Boolean);
+        };
+
+        // Process each card
+        const cards: ProductCard[] = [];
+        const cardConfigs = [
+          { 
+            prefix: 'card_1', 
+            link: '/products/cctv-systems', 
+            icon: '🎥', 
+            color: 'from-blue-600 to-blue-800' 
+          },
+          { 
+            prefix: 'card_2', 
+            link: '/products/networking', 
+            icon: '🌐', 
+            color: 'from-green-600 to-green-800' 
+          },
+          { 
+            prefix: 'card_3', 
+            link: '/products/security-systems', 
+            icon: '🔒', 
+            color: 'from-purple-600 to-purple-800' 
+          },
+          { 
+            prefix: 'card_4', 
+            link: '/products/storage-solutions', 
+            icon: '💾', 
+            color: 'from-red-600 to-red-800' 
+          },
+        ];
+
+        cardConfigs.forEach(({ prefix, link, icon, color }) => {
+          const title = acfData[`${prefix}_title`];
+          const description = acfData[`${prefix}_description`] || acfData[`${prefix}_decsription`]; // Handle typo
+          const feature = acfData[`${prefix}_feature`];
+          const bullets = acfData[`${prefix}_bullets`];
+
+          if (title && description && feature && bullets) {
+            cards.push({
+              title,
+              description,
+              feature,
+              bullets: processBulletPoints(bullets),
+              link,
+              icon,
+              color,
+            });
+          } else {
+            console.warn(`Incomplete data for ${prefix}. Missing fields:`, {
+              title: !!title,
+              description: !!description,
+              feature: !!feature,
+              bullets: !!bullets
+            });
           }
-        } catch (cacheError) {
-          console.error("Error accessing query cache:", cacheError);
-        }
+        });
 
-        // If we get here, we have no data to return
-        console.log("No cached data available");
-        return [];
+        console.log('Processed cards:', cards);
+
+        // Create the final data object with fallbacks
+        const processedData: OurProductsData = {
+          page_title: acfData.page_title || 'Our Products',
+          cards: cards.length > 0 ? cards : defaultProductsData.cards,
+          ...acfData, // Include all ACF data for potential future use
+        };
+
+        setData(processedData);
+      } catch (err) {
+        console.error('Error fetching products data:', err);
+        setError('Failed to load products. Please try again later.');
+        setData(defaultProductsData);
+      } finally {
+        setIsLoading(false);
       }
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 15 * 60 * 1000, // 15 minutes
-    retry: (failureCount, error: any) => {
-      // Don't retry on 404s
-      if (error?.response?.status === 404) return false;
-      // Retry up to 1 time for other errors
-      return failureCount < 1;
-    },
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    networkMode: "online" as const,
-  });
-}
+    };
+
+    fetchData();
+  }, []);
+
+  return { 
+    data: data || defaultProductsData, 
+    isLoading, 
+    error 
+  };
+};
+
+export default useProducts;
