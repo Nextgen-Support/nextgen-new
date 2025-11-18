@@ -7,12 +7,12 @@ const WORDPRESS_API_URL = WORDPRESS_REST_API_URL.replace('/wp/v2', '') || '';
 const WORDPRESS_ACF_API_URL = WORDPRESS_API_URL ? `${WORDPRESS_API_URL}/acf/v3` : '';
 
 // Add debug logs to show the API URLs being used
-console.log('WordPress API Configuration:', {
-  baseURL: WORDPRESS_BASE_URL,
-  apiURL: WORDPRESS_API_URL,
-  restURL: WORDPRESS_REST_API_URL,
-  acfURL: WORDPRESS_ACF_API_URL
-});
+// console.log('WordPress API Configuration:', {
+//   baseURL: WORDPRESS_BASE_URL,
+//   apiURL: WORDPRESS_API_URL,
+//   restURL: WORDPRESS_REST_API_URL,
+//   acfURL: WORDPRESS_ACF_API_URL
+// });
 
 // Types
 export interface WordPressMedia {
@@ -133,7 +133,7 @@ export const fetchPosts = async (params: Record<string, any> = {}): Promise<Word
  */
 export const fetchPageBySlug = async (slug: string, includeAcf: boolean = true): Promise<WordPressPage | null> => {
   try {
-    console.log(`Fetching page with slug: ${slug}`);
+    // console.log(`Fetching page with slug: ${slug}`);
     const response = await wordpressApi.get<WordPressPage[]>('/pages', {
       params: {
         slug,
@@ -148,12 +148,12 @@ export const fetchPageBySlug = async (slug: string, includeAcf: boolean = true):
       return null;
     }
 
-    console.log('Page data received:', page);
+    // console.log('Page data received:', page);
 
     // If ACF data is missing, log a warning
     if (includeAcf && !page.acf) {
       console.warn('ACF data is missing from the page response');
-      console.log('Available page data:', Object.keys(page));
+      // console.log('Available page data:', Object.keys(page));
       try {
         const acfResponse = await axios.get(`${WORDPRESS_ACF_API_URL}/pages/${page.id}`);
         page.acf = acfResponse.data?.acf;
@@ -190,7 +190,7 @@ export interface WhyChooseUsData {
 
 export async function fetchWhyChooseUsData(): Promise<WhyChooseUsData | null> {
   try {
-    console.log('Fetching Why Choose Us data...');
+    // console.log('Fetching Why Choose Us data...');
     
     // Define possible endpoints to try
     const endpoints = [
@@ -219,7 +219,7 @@ export async function fetchWhyChooseUsData(): Promise<WhyChooseUsData | null> {
     // Try each endpoint until we find the data
     for (const endpoint of endpoints) {
       try {
-        console.log(`Trying endpoint: ${endpoint.url}`);
+        // console.log(`Trying endpoint: ${endpoint.url}`);
         const response = await axios.get(endpoint.url);
         
         if (response.data) {
@@ -235,7 +235,7 @@ export async function fetchWhyChooseUsData(): Promise<WhyChooseUsData | null> {
               image: responseData.acf?.image || responseData.featured_media,
               items: responseData.acf?.items || []
             };
-            console.log(`✅ Found data in ${endpoint.type} endpoint`);
+            // console.log(`✅ Found data in ${endpoint.type} endpoint`);
             break;
           }
         }
@@ -250,7 +250,7 @@ export async function fetchWhyChooseUsData(): Promise<WhyChooseUsData | null> {
       return null;
     }
 
-    console.log('ACF Data found:', acfData);
+    // console.log('ACF Data found:', acfData);
 
     // Extract the data we need
     const title = acfData.title || 'Why Choose Us';
@@ -267,14 +267,14 @@ export async function fetchWhyChooseUsData(): Promise<WhyChooseUsData | null> {
       if (typeof acfData[field] === 'string') {
         if (acfData[field].match(/\.(jpg|jpeg|png|gif)$/i)) {
           imageUrl = acfData[field];
-          console.log(`Found image URL in field '${field}':`, imageUrl);
+          // console.log(`Found image URL in field '${field}':`, imageUrl);
           break;
         }
       }
       // Case 2: Media object with URL
       else if (acfData[field].url) {
         imageUrl = acfData[field].url;
-        console.log(`Found image URL in field '${field}.url':`, imageUrl);
+        // console.log(`Found image URL in field '${field}.url':`, imageUrl);
         break;
       }
       // Case 3: ACF image field with sizes
@@ -295,11 +295,11 @@ export async function fetchWhyChooseUsData(): Promise<WhyChooseUsData | null> {
       else if (Number.isInteger(acfData[field])) {
         try {
           const mediaId = acfData[field];
-          console.log(`Found media ID in field '${field}':`, mediaId);
+          // console.log(`Found media ID in field '${field}':`, mediaId);
           const mediaResponse = await axios.get(`${WORDPRESS_REST_API_URL}/media/${mediaId}`);
           if (mediaResponse.data?.source_url) {
             imageUrl = mediaResponse.data.source_url;
-            console.log(`Found image URL from media ID ${mediaId}:`, imageUrl);
+            // console.log(`Found image URL from media ID ${mediaId}:`, imageUrl);
             break;
           }
         } catch (mediaError) {
@@ -314,7 +314,7 @@ export async function fetchWhyChooseUsData(): Promise<WhyChooseUsData | null> {
         ? WORDPRESS_BASE_URL.slice(0, -1) 
         : WORDPRESS_BASE_URL;
       imageUrl = `${base}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
-      console.log('Converted to absolute URL:', imageUrl);
+      // console.log('Converted to absolute URL:', imageUrl);
     }
 
     // Handle items - could be an array or a string with newlines
@@ -364,7 +364,7 @@ export interface TeamImageData {
 
 export async function fetchTeamImage(): Promise<TeamImageData | null> {
   try {
-    console.log('Fetching Team Image data...');
+    // console.log('Fetching Team Image data...');
     
     // Define the specific ACF field we're looking for
     // The field is named 'team' in the 'Team' field group with return format as image URL
@@ -414,7 +414,7 @@ export async function fetchTeamImage(): Promise<TeamImageData | null> {
     // Try each endpoint until we find the data
     for (const endpoint of endpoints) {
       try {
-        console.log(`Trying endpoint: ${endpoint.url}`);
+        // console.log(`Trying endpoint: ${endpoint.url}`);
         const response = await axios.get(endpoint.url);
         
         if (response.data) {
@@ -424,7 +424,7 @@ export async function fetchTeamImage(): Promise<TeamImageData | null> {
           if (responseData?.acf || responseData?.title) {
             // The team image is directly in responseData.acf.team (not nested under image)
             const teamImage = responseData.acf?.[acfFieldName];
-            console.log('Team image from ACF:', teamImage);
+            // console.log('Team image from ACF:', teamImage);
             
             acfData = {
               ...(responseData.acf || {}),
@@ -434,8 +434,8 @@ export async function fetchTeamImage(): Promise<TeamImageData | null> {
               _embedded: responseData._embedded
             };
             
-            console.log('Processed ACF data:', acfData);
-            console.log(`✅ Found data in ${endpoint.type} endpoint`);
+            // console.log('Processed ACF data:', acfData);
+            // console.log(`✅ Found data in ${endpoint.type} endpoint`);
             break;
           }
         }
@@ -450,13 +450,13 @@ export async function fetchTeamImage(): Promise<TeamImageData | null> {
       return null;
     }
 
-    console.log('Team Image ACF Data found:', acfData);
+    // console.log('Team Image ACF Data found:', acfData);
 
     // Handle image - try different possible field names and paths
     let imageUrl = '';
     
     // Debug: Log the full ACF data structure
-    console.log('Full ACF Data Structure:', JSON.stringify(acfData, null, 2));
+    // console.log('Full ACF Data Structure:', JSON.stringify(acfData, null, 2));
     
     // Try to get the image from various possible nested structures
     const possiblePaths = [
@@ -477,20 +477,20 @@ export async function fetchTeamImage(): Promise<TeamImageData | null> {
         const image = getImage();
         if (!image) continue;
         
-        console.log('Checking image path:', getImage.toString(), 'Value:', image);
+        // console.log('Checking image path:', getImage.toString(), 'Value:', image);
         
         // Handle different image formats
         if (typeof image === 'string') {
           if (image.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
             imageUrl = image;
-            console.log('Found direct image URL:', imageUrl);
+            // console.log('Found direct image URL:', imageUrl);
             break;
           }
         } 
         // Handle ACF image object
         else if (image.url) {
           imageUrl = image.url;
-          console.log('Found image URL in object:', imageUrl);
+          // console.log('Found image URL in object:', imageUrl);
           break;
         }
         // Handle ACF image with sizes
@@ -503,7 +503,7 @@ export async function fetchTeamImage(): Promise<TeamImageData | null> {
             imageUrl = image.sizes.full;
           }
           if (imageUrl) {
-            console.log('Found image in sizes:', imageUrl);
+            // console.log('Found image in sizes:', imageUrl);
             break;
           }
         }
@@ -511,11 +511,11 @@ export async function fetchTeamImage(): Promise<TeamImageData | null> {
         else if (Number.isInteger(image)) {
           try {
             const mediaId = image;
-            console.log('Found media ID:', mediaId);
+            // console.log('Found media ID:', mediaId);
             const mediaResponse = await axios.get(`${WORDPRESS_REST_API_URL}/media/${mediaId}`);
             if (mediaResponse.data?.source_url) {
               imageUrl = mediaResponse.data.source_url;
-              console.log('Resolved media ID to URL:', imageUrl);
+              // console.log('Resolved media ID to URL:', imageUrl);
               break;
             }
           } catch (mediaError) {
@@ -533,13 +533,13 @@ export async function fetchTeamImage(): Promise<TeamImageData | null> {
         ? WORDPRESS_BASE_URL.slice(0, -1) 
         : WORDPRESS_BASE_URL;
       imageUrl = `${base}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
-      console.log('Converted to absolute URL:', imageUrl);
+      // console.log('Converted to absolute URL:', imageUrl);
     }
 
     // If no image found in ACF, try embedded media
     if (!imageUrl && acfData._embedded?.['wp:featuredmedia']?.[0]?.source_url) {
       imageUrl = acfData._embedded['wp:featuredmedia'][0].source_url;
-      console.log('Using embedded featured media:', imageUrl);
+      // console.log('Using embedded featured media:', imageUrl);
     }
 
     return {
@@ -646,16 +646,16 @@ declare module './api' {
  */
 export async function fetchOurProducts(): Promise<OurProductsData | null> {
   try {
-    console.log('Fetching Our Products page...');
+    // console.log('Fetching Our Products page...');
     const page = await fetchPageBySlug('our-products');
     
-    console.log('Page data:', page);
+    // console.log('Page data:', page);
     
     if (!page) {
       console.error('❌ Our Products page not found. Please ensure:');
       console.log('1. A page with the slug "our-products" exists in WordPress');
       console.log('2. The page is published (not draft or private)');
-      console.log('3. The WordPress REST API is accessible at:', WORDPRESS_REST_API_URL);
+      // console.log('3. The WordPress REST API is accessible at:', WORDPRESS_REST_API_URL);
       return null;
     }
     
@@ -668,9 +668,9 @@ export async function fetchOurProducts(): Promise<OurProductsData | null> {
       
       // Try to fetch ACF data directly
       try {
-        console.log('Attempting to fetch ACF data directly...');
+        // console.log('Attempting to fetch ACF data directly...');
         const acfResponse = await axios.get(`${WORDPRESS_REST_API_URL}/pages/${page.id}?_fields=acf`);
-        console.log('Direct ACF response:', acfResponse.data);
+        // console.log('Direct ACF response:', acfResponse.data);
       } catch (acfError) {
         console.error('Failed to fetch ACF data directly:', acfError);
       }
@@ -678,7 +678,7 @@ export async function fetchOurProducts(): Promise<OurProductsData | null> {
       return null;
     }
     
-    console.log('✅ ACF data received. Available fields:', Object.keys(page.acf));
+    // console.log('✅ ACF data received. Available fields:', Object.keys(page.acf));
 
     const { acf } = page;
     const cards = [];
@@ -695,12 +695,12 @@ export async function fetchOurProducts(): Promise<OurProductsData | null> {
       const feature = acf[featureKey as keyof WordPressACFFields] as string | undefined;
       const bullets = acf[bulletsKey as keyof WordPressACFFields] as string | undefined;
       
-      console.log(`Card ${prefix} fields:`, {
-        titleKey, title,
-        descriptionKey, description,
-        featureKey, feature,
-        bulletsKey, bullets
-      });
+      // console.log(`Card ${prefix} fields:`, {
+      //   titleKey, title,
+      //   descriptionKey, description,
+      //   featureKey, feature,
+      //   bulletsKey, bullets
+      // });
 
       if (title && description && feature && bullets) {
         return {
@@ -722,7 +722,7 @@ export async function fetchOurProducts(): Promise<OurProductsData | null> {
     const card3 = createCard('card_3', '/products/security-systems', '🔒', 'from-purple-600 to-purple-800');
     const card4 = createCard('card_4', '/products/storage-solutions', '💾', 'from-red-600 to-red-800');
 
-    console.log('Card creation results:', { card1, card2, card3, card4 });
+    // console.log('Card creation results:', { card1, card2, card3, card4 });
 
     // Only add cards that have all required fields
     if (card1) cards.push(card1);
@@ -730,11 +730,11 @@ export async function fetchOurProducts(): Promise<OurProductsData | null> {
     if (card3) cards.push(card3);
     if (card4) cards.push(card4);
     
-    console.log('Final cards array:', cards);
+    // console.log('Final cards array:', cards);
 
     if (cards.length === 0) {
       console.error('No valid product cards found in ACF data. Please check that all required fields are filled in WordPress.');
-      console.log('Available ACF fields:', Object.keys(acf));
+      // console.log('Available ACF fields:', Object.keys(acf));
       return null;
     }
 
