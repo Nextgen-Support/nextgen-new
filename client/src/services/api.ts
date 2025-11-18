@@ -21,6 +21,21 @@ const createAuthHeaders = (): HeadersInit => {
   return headers;
 };
 
+const helpDeskHeader = (): HeadersInit => {
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+  
+  const token = getAuthToken();
+  if (token) {
+    // Using the standard Authorization header with Bearer scheme
+    // console.log(`token: ${token}`)
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
+  return headers;
+};
+
 export interface ContactFormData {
   name: string;
   email: string;
@@ -92,7 +107,7 @@ const getAuthHeaders = () => {
 
 export const submitContactForm = async (data: ContactFormData): Promise<ApiResponse> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/contact`, {
+    const response = await fetch(`${API_BASE_URL}/sendEmail`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
@@ -124,15 +139,19 @@ export const submitServiceRequest = async (data: ServiceRequestData): Promise<Ap
       );
     }
 
-    const response = await fetch(`${API_BASE_URL}/service-requests`, {
+    // const response = await fetch(`${API_BASE_URL}/service-requests`, {
+    const response = await fetch(`${API_BASE_URL}/createRequest`, {
+      // authorization: 'Bearer sometoken here'
       method: 'POST',
-      headers: createAuthHeaders(),
+      headers: helpDeskHeader(),
       body: JSON.stringify(body),
     });
 
     const responseData = await response.json().catch(() => ({}));
 
     if (!response.ok) {
+
+      // console.log(responseData)
       // If there are validation errors, include them in the error message
       if (response.status === 400 && responseData.errors) {
         const errorMessages = responseData.errors
