@@ -168,7 +168,7 @@ export default function Navigation() {
               </Link>
 
               {/* What's New */}
-              <Link
+              {/* <Link
                 to="/whats-new"
                 className="px-3 py-2 rounded-md text-sm font-medium hover:bg-white/20 no-underline"
                 onClick={() => {
@@ -178,7 +178,7 @@ export default function Navigation() {
                 }}
               >
                 What's New
-              </Link>
+              </Link> */}
 
               {/* Services dropdown */}
               <div className="relative" ref={servicesRef}>
@@ -325,7 +325,7 @@ export default function Navigation() {
                 About Us
               </Link>
               <Link
-                to="/#contact"
+                to="/support/request"
                 className="px-3 py-2 rounded-md text-sm font-medium hover:bg-white/20 no-underline"
                 onClick={(e) => {
                   if (window.location.pathname === "/") {
