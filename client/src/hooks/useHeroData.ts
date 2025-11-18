@@ -17,16 +17,16 @@ export const useHeroData = () => {
   useEffect(() => {
     const fetchHeroData = async () => {
       try {
-        console.log('Fetching hero data from:', import.meta.env.VITE_WORDPRESS_REST_API_URL);
+        // console.log('Fetching hero data from:', import.meta.env.VITE_WORDPRESS_REST_API_URL);
         
         // First, let's verify the API is accessible
         const testResponse = await fetch(`${import.meta.env.VITE_WORDPRESS_REST_API_URL}/pages?slug=home&_fields=id,title,acf`);
         const testData = await testResponse.json();
-        console.log('Test API Response:', testData);
+        // console.log('Test API Response:', testData);
         
         // Fetch the actual page data
         const page = await fetchPageBySlug('home');
-        console.log('Full API Response:', JSON.stringify(page, null, 2));
+        // console.log('Full API Response:', JSON.stringify(page, null, 2));
         
         if (!page) {
           console.error('No page found with slug "home"');
@@ -35,7 +35,7 @@ export const useHeroData = () => {
         }
         
         if (page.acf) {
-          console.log('ACF Fields:', page.acf);
+          // console.log('ACF Fields:', page.acf);
           setHeroData({
             title: page.acf.title || page.title?.rendered || 'Welcome to NextGen',
             subtitle: page.acf.sub_title || 'Innovative Solutions for Tomorrow',

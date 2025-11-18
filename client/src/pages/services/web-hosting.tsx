@@ -98,9 +98,9 @@ const WebHostingPage: React.FC = () => {
   const pageData = data || defaultWebHostingData;
   // Log the data for debugging
   useEffect(() => {
-    console.log('Page Data:', pageData);
+    // console.log('Page Data:', pageData);
     if (pageData?.plans) {
-      console.log('Plans:', pageData.plans);
+      // console.log('Plans:', pageData.plans);
     }
   }, [pageData]);
 

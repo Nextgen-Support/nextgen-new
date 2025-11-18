@@ -16,10 +16,10 @@ export const useSolutionsData = () => {
   useEffect(() => {
     const fetchSolutions = async () => {
       try {
-        console.log('Starting to fetch solutions from WordPress...');
+        // console.log('Starting to fetch solutions from WordPress...');
         
         // First, try to get the page ID of the homepage
-        console.log('Fetching pages to find the home page...');
+        // console.log('Fetching pages to find the home page...');
         const pagesResponse = await wordpressApi.get('/pages', {
           params: {
             _fields: 'id,slug',
@@ -34,10 +34,10 @@ export const useSolutionsData = () => {
           throw new Error('Home page not found. Make sure you have a page with slug "home" in WordPress.');
         }
         
-        console.log('Home page found with ID:', homePage.id);
+        // console.log('Home page found with ID:', homePage.id);
         
         // Get the page with ACF data using the page_by_slug endpoint
-        console.log(`Fetching page with ACF data for ID: ${homePage.id}...`);
+        // console.log(`Fetching page with ACF data for ID: ${homePage.id}...`);
         
         // Try to get the 'our-solutions' page first, then fallback to home page
         let pageWithAcf = null;
@@ -53,7 +53,7 @@ export const useSolutionsData = () => {
           });
           
           const solutionsPage = solutionsPageRes.data?.[0];
-          console.log('Our Solutions page data:', solutionsPage);
+          // console.log('Our Solutions page data:', solutionsPage);
           
           if (solutionsPage?.acf) {
             pageWithAcf = solutionsPage;
@@ -88,11 +88,11 @@ export const useSolutionsData = () => {
           throw new Error('Could not find a page with the required ACF fields');
         }
 
-        console.log('Using page with ACF fields:', pageWithAcf.slug);
+        // console.log('Using page with ACF fields:', pageWithAcf.slug);
         const pageResponse = { data: pageWithAcf };
         
         const pageData = pageResponse.data;
-        console.log('Page data received:', pageData);
+        // console.log('Page data received:', pageData);
         
         // Get ACF data - check both possible locations
         let acfData = pageData.acf || (pageResponse.data?.acf_fields);
@@ -104,12 +104,12 @@ export const useSolutionsData = () => {
         
         if (!acfData) {
           console.error('No ACF data found in page response or _embedded');
-          console.log('Available page data keys:', Object.keys(pageData));
+          // console.log('Available page data keys:', Object.keys(pageData));
           setSolutions(getDefaultSolutions());
           return;
         }
         
-        console.log('ACF Fields:', acfData);
+        // console.log('ACF Fields:', acfData);
         
         const fetchedSolutions: Solution[] = [];
         
@@ -125,12 +125,12 @@ export const useSolutionsData = () => {
           const subtitle = acfData[fields.subtitle];
           const imageUrl = acfData[fields.image];
           
-          console.log(`Solution ${index + 1} data:`, { 
-            title, 
-            subtitle, 
-            imageUrl,
-            'allFields': Object.keys(acfData).filter(k => k.includes('title') || k.includes('sub') || k.includes('image'))
-          });
+          // console.log(`Solution ${index + 1} data:`, { 
+          //   title, 
+          //   subtitle, 
+          //   imageUrl,
+          //   'allFields': Object.keys(acfData).filter(k => k.includes('title') || k.includes('sub') || k.includes('image'))
+          // });
           
           // Add solution if we have either a title or image
           if (title || imageUrl) {

@@ -47,12 +47,12 @@ export default function AboutSection() {
         setIsLoading(true);
         setError(null);
         
-        console.log('Fetching team image data...');
+        // console.log('Fetching team image data...');
         // Use the new fetchTeamImage function which handles multiple endpoints and image formats
         const teamData = await fetchTeamImage();
         
         if (teamData?.imageUrl) {
-          console.log('Setting team image URL from WordPress:', teamData.imageUrl);
+          // console.log('Setting team image URL from WordPress:', teamData.imageUrl);
           setTeamImage(teamData.imageUrl);
         } else {
           console.log('No team image found in WordPress, using fallback image');

@@ -73,7 +73,7 @@ export function SolutionsSection() {
   });
 
   useEffect(() => {
-    console.log('Solutions data:', solutions); // Debug log
+    // console.log('Solutions data:', solutions); // Debug log
     if (inView) {
       controls.start("visible");
     }

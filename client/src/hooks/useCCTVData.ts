@@ -35,7 +35,7 @@ export const useCCTVData = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log('Fetching CCTV Solutions page data...');
+        // console.log('Fetching CCTV Solutions page data...');
         
         const pageResponse = await wordpressApi.get('/pages', {
           params: {
@@ -47,17 +47,17 @@ export const useCCTVData = () => {
         });
 
         const pageData = pageResponse.data?.[0];
-        console.log('Page data:', pageData);
+        // console.log('Page data:', pageData);
 
         if (!pageData) {
           console.error('CCTV Solutions page not found. Tried slug: advanced-cctv-security-solutions');
           const allPages = await wordpressApi.get('/pages');
-          console.log('Available pages:', allPages.data.map((p: any) => ({ id: p.id, slug: p.slug, title: p.title.rendered })));
+          // console.log('Available pages:', allPages.data.map((p: any) => ({ id: p.id, slug: p.slug, title: p.title.rendered })));
           throw new Error('CCTV Solutions page not found. Please check if the page with slug "advanced-cctv-security-solutions" exists in WordPress.');
         }
 
         const acfData = pageData.acf || {};
-        console.log('ACF data:', acfData);
+        // console.log('ACF data:', acfData);
 
         const getImageUrl = (imageField: any) => {
           if (!imageField) return '';

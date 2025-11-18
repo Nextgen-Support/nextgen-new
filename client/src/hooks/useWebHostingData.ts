@@ -39,7 +39,7 @@ export const useWebHostingData = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log("Fetching Web Hosting Plans page data...");
+        // console.log("Fetching Web Hosting Plans page data...");
 
         // First, try to get the page by slug
         const pageResponse = await wordpressApi.get("/pages", {
@@ -52,7 +52,7 @@ export const useWebHostingData = () => {
         });
 
         const pageData = pageResponse.data?.[0];
-        console.log("Page data:", pageData);
+        // console.log("Page data:", pageData);
 
         if (!pageData) {
           console.error("Web Hosting Plans page not found");
@@ -63,7 +63,7 @@ export const useWebHostingData = () => {
 
         // Get ACF data directly from the page
         const acfData = pageData.acf || {};
-        console.log("ACF data:", acfData);
+        // console.log("ACF data:", acfData);
 
         // Process bullet points from text area to array
         const processBulletPoints = (points: string): string[] => {
@@ -105,15 +105,15 @@ export const useWebHostingData = () => {
             popular: i === 3, // Mark 'Value' plan as popular by default
           });
 
-          console.log(`Processed plan ${i}:`, {
-            title: planTitle,
-            price,
-            features,
-            description,
-          });
+          // console.log(`Processed plan ${i}:`, {
+          //   title: planTitle,
+          //   price,
+          //   features,
+          //   description,
+          // });
         }
 
-        console.log("All processed plans:", wordpressPlans);
+        // console.log("All processed plans:", wordpressPlans);
 
         // Create the final data object
         const processedData: WebHostingData = {

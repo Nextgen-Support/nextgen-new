@@ -32,9 +32,9 @@ export const useDocumentManagementData = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log('Fetching document management page data...');
+        // console.log('Fetching document management page data...');
         
-        console.log('Fetching document management page...');
+        // console.log('Fetching document management page...');
         
         // First try to get the document management page by slug
         const pageResponse = await wordpressApi.get('/pages', {
@@ -50,30 +50,30 @@ export const useDocumentManagementData = () => {
         });
 
         const pageData = pageResponse.data?.[0];
-        console.log('Page data:', pageData);
+        // console.log('Page data:', pageData);
 
         if (!pageData) {
           console.error('Document Management page not found. Tried slug: document-management-solutions');
           // List all pages to help with debugging
           const allPages = await wordpressApi.get('/pages');
-          console.log('Available pages:', allPages.data.map((p: any) => ({ id: p.id, slug: p.slug, title: p.title.rendered })));
+          // console.log('Available pages:', allPages.data.map((p: any) => ({ id: p.id, slug: p.slug, title: p.title.rendered })));
           throw new Error('Document Management page not found. Please check if the page with slug "document-management-solutions" exists in WordPress.');
         }
 
         // Get ACF data from the page
         const acfData = pageData.acf || {};
-        console.log('ACF data:', acfData);
-        console.log('Mobile background raw data:', acfData.mobile_background);
+        // console.log('ACF data:', acfData);
+        // console.log('Mobile background raw data:', acfData.mobile_background);
         
         // Log the raw response for debugging
-        console.log('Full page response:', {
-          hasAcf: !!pageData.acf,
-          acfFields: Object.keys(pageData.acf || {}),
-          mobileBackgroundInAcf: pageData.acf?.mobile_background ? {
-            type: typeof pageData.acf.mobile_background,
-            keys: Object.keys(pageData.acf.mobile_background || {})
-          } : 'No mobile_background in ACF'
-        });
+        // console.log('Full page response:', {
+        //   hasAcf: !!pageData.acf,
+        //   acfFields: Object.keys(pageData.acf || {}),
+        //   mobileBackgroundInAcf: pageData.acf?.mobile_background ? {
+        //     type: typeof pageData.acf.mobile_background,
+        //     keys: Object.keys(pageData.acf.mobile_background || {})
+        //   } : 'No mobile_background in ACF'
+        // });
 
         // Helper function to get image URL from ACF field
         const getImageUrl = (imageField: any) => {
@@ -87,11 +87,11 @@ export const useDocumentManagementData = () => {
         };
 
         // Debug log for ACF data structure
-        console.log('ACF Data Structure:', {
-          hasMobileBackground: !!acfData.mobile_background,
-          mobileBackgroundType: typeof acfData.mobile_background,
-          mobileBackgroundKeys: acfData.mobile_background ? Object.keys(acfData.mobile_background) : []
-        });
+        // console.log('ACF Data Structure:', {
+        //   hasMobileBackground: !!acfData.mobile_background,
+        //   mobileBackgroundType: typeof acfData.mobile_background,
+        //   mobileBackgroundKeys: acfData.mobile_background ? Object.keys(acfData.mobile_background) : []
+        // });
 
         // Process the data to match our interface
         const processedData: DocumentManagementData = {
@@ -116,7 +116,7 @@ export const useDocumentManagementData = () => {
             // First try to get the mobile_background field directly
             let bgUrl = acfData.mobile_background;
             
-            console.log('Raw mobile_background value:', bgUrl);
+            // console.log('Raw mobile_background value:', bgUrl);
             
             // If it's an object, try to extract the URL
             if (bgUrl && typeof bgUrl === 'object') {
@@ -126,12 +126,12 @@ export const useDocumentManagementData = () => {
                      bgUrl.guid || 
                      (typeof bgUrl === 'string' ? bgUrl : '');
               
-              console.log('Extracted URL from mobile_background object:', bgUrl);
+              // console.log('Extracted URL from mobile_background object:', bgUrl);
             }
             
             // If we have a URL, return it with a default alt text
             if (bgUrl) {
-              console.log('Using mobile background URL:', bgUrl);
+              // console.log('Using mobile background URL:', bgUrl);
               return {
                 url: bgUrl,
                 alt: acfData.mobile_background_alt || 'Mobile Background'
@@ -147,11 +147,11 @@ export const useDocumentManagementData = () => {
           })()
         };
 
-        console.log('Processed data with images:', {
-          sub_image_1: processedData.sub_image_1,
-          sub_image_2: processedData.sub_image_2,
-          mobile_background: processedData.mobile_background
-        });
+        // console.log('Processed data with images:', {
+        //   sub_image_1: processedData.sub_image_1,
+        //   sub_image_2: processedData.sub_image_2,
+        //   mobile_background: processedData.mobile_background
+        // });
 
         setData(processedData);
       } catch (err) {
