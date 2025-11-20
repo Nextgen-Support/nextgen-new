@@ -30,7 +30,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h4 className="text-lg font-semibold text-white mb-1">Phone</h4>
-                    <p className="text-gray-300">+675 325 2025</p>
+                    <p className="text-gray-300">+675 325 2023</p>
                     <p className="text-gray-300">+675 311 2020</p>
                   </div>
                 </div>
@@ -81,7 +81,7 @@ export default function ContactPage() {
                   <div>
                     <h4 className="text-lg font-semibold text-white mb-1">Business Hours</h4>
                     <p className="text-gray-300">Monday - Friday: 8:00 AM - 5:00 PM</p>
-                    <p className="text-gray-300">Saturday: 9:00 AM - 1:00 PM</p>
+                    <p className="text-gray-300">Saturday: 8:00 AM - 12:00 PM</p>
                     <p className="text-gray-300">Sunday: Closed</p>
                   </div>
                 </div>

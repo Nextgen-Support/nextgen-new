@@ -114,6 +114,7 @@ export const submitContactForm = async (data: ContactFormData): Promise<ApiRespo
     });
 
     const responseData = await response.json();
+    
 
     if (!response.ok) {
       throw new Error(responseData.message || 'Failed to submit contact form');
@@ -126,22 +127,20 @@ export const submitContactForm = async (data: ContactFormData): Promise<ApiRespo
   }
 };
 
-export const submitServiceRequest = async (data: ServiceRequestData): Promise<ApiResponse<ServiceRequestResponse>> => {
+export const submitServiceRequest = async (
+  data: ServiceRequestData
+): Promise<ApiResponse<ServiceRequestResponse>> => {
   try {
-    // Prepare the request body
-    const body: any = { ...data };
-    
-    // Add reCAPTCHA token if available
-    if (window.grecaptcha) {
-      body.recaptchaToken = await window.grecaptcha.execute(
-        import.meta.env.VITE_RECAPTCHA_SITE_KEY || 'your-recaptcha-site-key', 
-        { action: 'submit' }
-      );
+    // Ensure the token exists
+    if (!data.recaptchaToken) {
+      throw new Error('Please complete the reCAPTCHA');
     }
 
-    // const response = await fetch(`${API_BASE_URL}/service-requests`, {
+    // Prepare the request body
+    const body: any = { ...data };
+
+    // Send the request to the backend
     const response = await fetch(`${API_BASE_URL}/createRequest`, {
-      // authorization: 'Bearer sometoken here'
       method: 'POST',
       headers: helpDeskHeader(),
       body: JSON.stringify(body),
@@ -150,9 +149,6 @@ export const submitServiceRequest = async (data: ServiceRequestData): Promise<Ap
     const responseData = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-
-      // console.log(responseData)
-      // If there are validation errors, include them in the error message
       if (response.status === 400 && responseData.errors) {
         const errorMessages = responseData.errors
           .map((error: any) => `${error.path}: ${error.msg}`)

@@ -1,11 +1,42 @@
 import { Send } from "lucide-react";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { toast } from 'sonner';
 import { submitContactForm, type ContactFormData } from '@/services/api';
 
 const ContactForm = () => {
   const form = useRef<HTMLFormElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [recaptchaLoaded, setRecaptchaLoaded] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const recaptchaRef = useRef<any>(null);
+
+  /* ---------------------- Load & Render reCAPTCHA v2 ---------------------- */
+  useEffect(() => {
+    const scriptId = "recaptcha-v2-script";
+
+    // Define global callback first
+    (window as any).onRecaptchaLoad = () => {
+      if (window.grecaptcha && recaptchaRef.current) {
+        window.grecaptcha.render(recaptchaRef.current, {
+          sitekey: import.meta.env.VITE_RECAPTCHA_SITE_KEY,
+          callback: (token: string) => setRecaptchaToken(token),
+          "expired-callback": () => setRecaptchaToken(null),
+        });
+      }
+    };
+
+    if (!document.getElementById(scriptId)) {
+      const script = document.createElement("script");
+      script.id = scriptId;
+      script.src = "https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit";
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+    } else {
+      // If script already exists, manually call the callback
+      (window as any).onRecaptchaLoad();
+    }
+  }, []);
 
   const sendEmail = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,6 +52,11 @@ const ContactForm = () => {
       return false;
     }
 
+    if (!recaptchaToken) {
+      toast.error("Please complete the reCAPTCHA");
+      return;
+    }
+
     try {
       setIsSubmitting(true);
 
@@ -34,25 +70,44 @@ const ContactForm = () => {
       
       // Prepare form data according to API requirements
       const formValues: ContactFormData = {
-        name: formData.get('name') as string,
-        email: formData.get('email') as string,
-        phone: formData.get('phone') as string,
-        subject: formData.get('subject') as string,
-        message: formData.get('message') as string,
-        _subject: 'New contact form submission',
-        _captcha: 'false',
-        _autoresponse: 'Thank you for contacting us! We will get back to you soon.'
+        name: formData.get("name") as string,
+        email: formData.get("email") as string,
+        phone: formData.get("phone") as string,
+        subject: formData.get("subject") as string,
+        message: formData.get("message") as string,
+        _subject: "New contact form submission",
+        _autoresponse: "Thank you for contacting us! We will get back to you soon.",
+        recaptchaToken, 
       };
       
       // Send form data to our API
       const result = await submitContactForm(formValues);
       
-      if (!result.success) {
+      // if (!result.success) {
+      //   throw new Error(result.message || 'Failed to send message');
+      // }
+
+      if (result.success) {
+        toast.success('Message sent successfully!');
+        setRecaptchaToken(null);
+        if (recaptchaRef.current) {
+          recaptchaRef.current.reset();
+        }
+        // onSuccess();
+        // toast.success('Message sent successfully!');
+        form.current?.reset();
+      } else {
         throw new Error(result.message || 'Failed to send message');
       }
 
-      toast.success('Message sent successfully!');
-      form.current?.reset();
+      
+
+      // Reset reCAPTCHA after success
+      setRecaptchaToken(null);
+      if (window.grecaptcha) {
+        window.grecaptcha.reset();
+      }
+      
     } catch (error) {
       toast.error('Failed to send message. Please try again.');
     } finally {
@@ -145,6 +200,26 @@ const ContactForm = () => {
                 required
                 placeholder="Please enter your message..."
               ></textarea>
+            </div>
+
+            {/* reCAPTCHA v2
+            <div className="mb-4">
+              {recaptchaLoaded ? (
+                <div
+                  ref={recaptchaRef}
+                  className="g-recaptcha"
+                  data-sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+                  data-callback={(token: string) => setRecaptchaToken(token)}
+                  data-expired-callback={() => setRecaptchaToken(null)}
+                />
+              ) : (
+                <p className="text-sm text-yellow-600">Loading reCAPTCHA...</p>
+              )}
+            </div> */}
+            {/* reCAPTCHA v2 */}
+            <div className="w-full max-w-4xl mx-auto mb-4">
+              <div ref={recaptchaRef}></div>
+              {recaptchaToken && <p className="text-green-500 mt-2">reCAPTCHA verified!</p>}
             </div>
 
             {/* Submit Button */}
